@@ -1,0 +1,176 @@
+<div class="register-page">
+    <header class="register-header">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z" fill="currentColor"></path>
+                </svg>
+            </div>
+            <h2>01Blog</h2>
+        </div>
+
+        <div class="header-right">
+            <span class="member-text">Already a member?</span>
+            <a routerLink="/login" class="login-btn-header">Log in</a>
+        </div>
+    </header>
+
+    <div class="register-container">
+        <!-- Left Side: Form -->
+        <div class="register-left">
+            <div class="register-content">
+                <div class="page-header">
+                    <h1>Start sharing your journey</h1>
+                    <p>Join a community of students and developers sharing knowledge.</p>
+                </div>
+
+                <form (ngSubmit)="onRegister()" class="register-form">
+                    <!-- Name Fields -->
+                    <div class="name-row">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <div class="input-wrapper">
+                                <input [(ngModel)]="firstname" name="firstname" type="text" placeholder="John"
+                                    required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <div class="input-wrapper">
+                                <input [(ngModel)]="lastname" name="lastname" type="text" placeholder="Doe" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <div class="input-wrapper">
+                            <input [(ngModel)]="email" name="email" type="email" placeholder="student@university.edu"
+                                required />
+                            <span class="material-symbols-outlined input-icon">mail</span>
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <input [(ngModel)]="password" name="password" [type]="showPassword ? 'text' : 'password'"
+                                placeholder="Min 8 characters" required />
+                            <button type="button" class="toggle-password" (click)="showPassword = !showPassword">
+                                <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' :
+                                    'visibility' }}</span>
+                            </button>
+                        </div>
+                        <!-- Strength Meter (Visual only) -->
+                        <div class="strength-meter" [ngClass]="'strength-' + strength">
+                            <div class="strength-bar"></div>
+                            <div class="strength-bar"></div>
+                            <div class="strength-bar"></div>
+                            <div class="strength-bar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Terms Checkbox -->
+                    <div class="terms-checkbox">
+                        <input type="checkbox" id="terms" required />
+                        <label for="terms">
+                            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                        </label>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div *ngIf="error" class="error-message">
+                        {{ error }}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="register-btn">Create Account</button>
+                </form>
+
+                <!-- Divider -->
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-text">Or continue with</span>
+                </div>
+
+                <!-- Social Buttons -->
+                <div class="social-buttons">
+                    <button class="social-btn">
+                        <svg aria-hidden="true" class="social-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path clip-rule="evenodd"
+                                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                                fill-rule="evenodd"></path>
+                        </svg>
+                        GitHub
+                    </button>
+                    <button class="social-btn">
+                        <svg aria-hidden="true" class="social-icon" viewBox="0 0 24 24">
+                            <path
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                fill="#4285F4"></path>
+                            <path
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                fill="#34A853"></path>
+                            <path
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                fill="#FBBC05"></path>
+                            <path
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                fill="#EA4335"></path>
+                        </svg>
+                        Google
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Decorative -->
+        <div class="register-right">
+            <div class="decorative-bg"></div>
+            <div class="right-content">
+                <div class="testimonial-card">
+                    <div class="card-header">
+                        <div class="card-avatar-placeholder"></div>
+                        <div class="card-lines">
+                            <div class="line short"></div>
+                            <div class="line shorter"></div>
+                        </div>
+                    </div>
+                    <div class="card-body-lines">
+                        <div class="line full"></div>
+                        <div class="line full"></div>
+                        <div class="line medium"></div>
+                    </div>
+                </div>
+
+                <div class="text-content">
+                    <h3>Build your portfolio</h3>
+                    <p>"01Blog gave me the platform to showcase my coding projects and get hired by my dream company."
+                    </p>
+
+                    <div class="user-avatars">
+                        <!-- Using placeholder divs for avatars to avoid external image deps issues if any -->
+                        <div class="avatar-group">
+                            <div class="avatar"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDduiAQpuOumDFaOloy5Nv5SONoIpGx6HXQ5GJmu1Wc-SN3paTLQrrvqd-J4g5nOIxaGxKdcwEkTabLVqi3tP1_nb_w-P4GVhb1QcfOYlYx6WZjkTp8ScTBkxzjD5QiHByq0KczgMpl0v6yMZdY4UOkLeJy2BfFQsjuTlipubRIzv2u7Zno59txR2CnJOkdUajlUK-KwM2Pg3DUWNFKW4Tv1YyiM6JHWCyKHAr82N_8rLp9CzN8i4G8U8kgDhCcCnj1rUnQZS8wCfXy')">
+                            </div>
+                            <div class="avatar"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB7Gps8oA5qoH1TFOKeTbKrpe5GUwooZNJTqBDXaJlx6Uvr6W_MlAgZOOMfiyuVA9J11QoYCirKl7Qge1NZcFWhntTNRvMYkVhCLhg2vQIAQFukO55KXwlcmfQbng2tejh7R0p6B422DJ2HiIr4AZo3Uvy3_GIBTXACm3hsUYhcWSkxMZ6Y8Efac11YS2cP3RqgmokSagJRkNBEh9C-K_H_nSLXKiXe_SRMDFXX6GodQDusX3vJbdW2X6B-AU6PlL6P9Ax9nGNZ3dHe')">
+                            </div>
+                            <div class="avatar"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDR_JcnOIH1ph-4KXWr8b6OIkspfZUEE3AoWmBcs-NgfBDLVohSgW8yBToprFKRZw6KuHVv_wWo7otmDjx-N8TyLsAsTeuHwrN50MkuMrTQz8Zdk6-Iq_2j42RpdavLId7aq-NjK02kMPRsRMS74g68LLiSa-zcZ0Wwe5Yc9ullQ7duh5Ht89T32DDXdfeU6GjIKoFUN8flyogI8LeZQ0YrdVD9chFF6VP-XD17n4xd3lW_rQHCig_NU5ZvylEh79IZFKSN_cPCC0b4')">
+                            </div>
+                        </div>
+                        <span>Join 10k+ developers</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Abstract Shapes (optional decoration) -->
+            <div class="shape circle-1"></div>
+            <div class="shape circle-2"></div>
+        </div>
+    </div>
+</div>
