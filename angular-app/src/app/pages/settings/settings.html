@@ -1,0 +1,140 @@
+<div class="settings-container">
+    <div class="settings-wrapper">
+        <app-navbar></app-navbar>
+
+        <div class="settings-main-content">
+            <div class="settings-grid">
+                <!-- Global Sidebar Integration -->
+                <app-sidebar class="settings-sidebar-wrapper"></app-sidebar>
+
+                <main class="settings-content-area">
+                    <div class="settings-layout">
+                        <div class="settings-content-wrapper">
+
+                            <!-- Account Tab Content -->
+                            <ng-container *ngIf="activeTab === 'Account'">
+                                <div class="settings-page-header">
+                                    <h1 class="settings-page-title">Account Settings</h1>
+                                    <p class="settings-page-description">Manage your personal information and profile
+                                        details.</p>
+                                </div>
+
+                                <!-- Profile Photo & Cover Section -->
+                                <section class="settings-section">
+                                    <div class="profile-photo-container">
+                                        <div class="profile-photo-wrapper">
+                                            <div class="profile-photo-preview"
+                                                [style.background-image]="'url(' + (editForm.avatar || 'assets/default-avatar.png') + ')'">
+                                            </div>
+                                            <div class="profile-photo-overlay" (click)="avatarInput.click()">
+                                                <span class="material-symbols-outlined">photo_camera</span>
+                                            </div>
+                                        </div>
+                                        <div class="profile-photo-info">
+                                            <h3 class="profile-photo-title">Profile Photo</h3>
+                                            <p class="profile-photo-description">Choose a high-quality square image for
+                                                your avatar.</p>
+                                            <div class="profile-photo-actions">
+                                                <input type="file" #avatarInput
+                                                    (change)="onFileSelected($event, 'avatar')" accept="image/*"
+                                                    style="display: none;">
+                                                <button class="btn-upload" (click)="avatarInput.click()">Upload
+                                                    New</button>
+                                                <button class="btn-remove"
+                                                    (click)="editForm.avatar = ''">Remove</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="cover-upload-box" style="margin-top: 2rem;">
+                                        <h3 class="settings-section-title" style="margin-bottom: 0.5rem;">Profile Cover
+                                        </h3>
+                                        <div class="cover-preview-wide"
+                                            [style.background-image]="'url(' + (editForm.cover || 'assets/default-cover.jpg') + ')'"
+                                            style="height: 120px; border-radius: 1rem; background-size: cover; background-position: center; border: 1px solid var(--gray-200); position: relative; overflow: hidden;">
+                                            <button class="btn-change-cover" (click)="coverInput.click()"
+                                                style="position: absolute; bottom: 0.75rem; right: 0.75rem; background: white; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; box-shadow: var(--shadow-sm);">
+                                                <span class="material-symbols-outlined"
+                                                    style="font-size: 1.25rem;">image</span>
+                                                Update Cover
+                                            </button>
+                                        </div>
+                                        <input type="file" #coverInput (change)="onFileSelected($event, 'cover')"
+                                            accept="image/*" style="display: none;">
+                                    </div>
+                                </section>
+
+                                <!-- Personal Information Form -->
+                                <section class="settings-section">
+                                    <div class="settings-section-header">
+                                        <h3 class="settings-section-title">Personal Information</h3>
+                                    </div>
+                                    <div class="settings-form-grid">
+                                        <div class="form-field">
+                                            <label class="form-field-label">First Name</label>
+                                            <div class="form-field-wrapper">
+                                                <input class="form-field-input" type="text"
+                                                    [(ngModel)]="editForm.firstname" placeholder="First Name" />
+                                                <span class="material-symbols-outlined form-field-icon">person</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-field">
+                                            <label class="form-field-label">Last Name</label>
+                                            <div class="form-field-wrapper">
+                                                <input class="form-field-input" type="text"
+                                                    [(ngModel)]="editForm.lastname" placeholder="Last Name" />
+                                                <span class="material-symbols-outlined form-field-icon">person</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-field form-field-full">
+                                            <label class="form-field-label">Bio</label>
+                                            <textarea class="form-field-textarea" [(ngModel)]="editForm.bio"
+                                                placeholder="Tell us about yourself..." maxlength="200"></textarea>
+                                            <div class="form-field-footer">
+                                                <span>{{ editForm.bio.length }}/200</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button (click)="saveSettings()" class="btn-save">Save Changes</button>
+                                    </div>
+                                </section>
+
+                                <!-- Danger Zone -->
+                                <section class="danger-zone">
+                                    <h3 class="danger-zone-title">Danger Zone</h3>
+                                    <div class="danger-zone-content">
+                                        <div class="danger-zone-info">
+                                            <span class="danger-zone-label">Delete Account</span>
+                                            <span class="danger-zone-sublabel">Permanently remove your data</span>
+                                        </div>
+                                        <button (click)="deleteAccount()" class="btn-danger">Delete Account</button>
+                                    </div>
+                                </section>
+                            </ng-container>
+
+                            <!-- Other Tabs Placeholder -->
+                            <ng-container
+                                *ngIf="activeTab === 'Notifications' || activeTab === 'Privacy' || activeTab === 'Help'">
+                                <div class="placeholder-state">
+                                    <span class="material-symbols-outlined">construction</span>
+                                    <h2>Under Development</h2>
+                                    <p>More settings are coming soon to this section.</p>
+                                </div>
+                            </ng-container>
+
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Feedback Toast -->
+    <div class="status-message-toast" *ngIf="status.visible" [class]="status.type">
+        <span class="material-symbols-outlined">
+            {{ status.type === 'success' ? 'check_circle' : (status.type === 'error' ? 'error' : 'info') }}
+        </span>
+        <span class="message-text">{{ status.message }}</span>
+    </div>
+</div>

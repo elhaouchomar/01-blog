@@ -1,0 +1,86 @@
+<header class="navbar">
+    <div class="navbar-container">
+        <!-- Left: Logo & Search -->
+        <div class="navbar-left">
+            <a class="navbar-logo" routerLink="/home" routerLinkActive="active"
+                [routerLinkActiveOptions]="{exact: true}">
+                <div class="logo-icon">
+                    <span class="material-symbols-outlined nav-item-icon">code_blocks</span>
+                </div>
+                <h1 class="logo-text">01Blog</h1>
+            </a>
+
+            <div class="search-bar">
+                <span class="material-symbols-outlined search-icon">search</span>
+                <input type="text" class="search-input" placeholder="Search for posts, tags, or students...">
+            </div>
+        </div>
+
+        <!-- Right: Nav Links & Actions -->
+        <div class="navbar-right">
+            <!-- Nav Links -->
+            <nav class="nav-links">
+                <a class="nav-item" routerLink="/home" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{exact: true}">
+                    <span class="material-symbols-outlined nav-item-icon">home</span>
+                    <span class="nav-item-text">Home</span>
+                </a>
+                <a class="nav-item" routerLink="/network" routerLinkActive="active">
+                    <span class="material-symbols-outlined nav-item-icon">group</span>
+                    <span class="nav-item-text">Network</span>
+                </a>
+                <div class="notif-wrapper">
+                    <button class="nav-item" (click)="toggleNotifications()"
+                        [class.active]="isNotificationsOpen || isNotificationRoute">
+                        <div class="icon-wrapper">
+                            <span class="material-symbols-outlined nav-item-icon"
+                                [class.filled]="isNotificationsOpen || isNotificationRoute">notifications</span>
+                            <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+                        </div>
+                        <span class="nav-item-text">Notifications</span>
+                    </button>
+
+                    <app-dropdown-notif *ngIf="isNotificationsOpen" [notifications]="notifications"
+                        (onClose)="isNotificationsOpen = false" (onNotificationClick)="handleNotificationClick($event)"
+                        (onMarkAllRead)="markAllRead()">
+                    </app-dropdown-notif>
+                </div>
+            </nav>
+
+            <!-- Actions -->
+            <div class="navbar-actions">
+                <button class="btn btn-primary btn-create-post" (click)="modalService.open('create-post')">
+                    <span class="material-symbols-outlined icon-edit">edit_square</span>
+                    <span>Write Post</span>
+                </button>
+
+                <div class="user-menu">
+                    <div class="user-avatar" (click)="toggleUserMenu()"
+                        [style.background-image]="'url(' + (user?.avatar || 'assets/default-avatar.png') + ')'">
+                    </div>
+
+                    <div class="dropdown-menu" *ngIf="isProfileOpen">
+                        <div class="dropdown-header">
+                            <p class="user-name">{{ user?.name }}</p>
+                            <p class="user-handle">{{ user?.handle }}</p>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item" routerLink="/profile" (click)="isProfileOpen = false">
+                            <span class="material-symbols-outlined icon-small">person</span>
+                            Profile
+                        </button>
+                        <button class="dropdown-item" *ngIf="isAdmin" routerLink="/dashboard"
+                            (click)="isProfileOpen = false">
+                            <span class="material-symbols-outlined icon-small">dashboard</span>
+                            Dashboard
+                        </button>
+                        <button class="dropdown-item text-danger" (click)="dataService.logout()">
+                            <span class="material-symbols-outlined icon-small">logout</span>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

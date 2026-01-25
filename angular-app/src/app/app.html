@@ -1,0 +1,16 @@
+<div [style.filter]="modalService.activeModal() ? 'blur(2px)' : 'none'"
+    [style.pointerEvents]="modalService.activeModal() ? 'none' : 'auto'" style="transition: all 0.3s;">
+    <router-outlet></router-outlet>
+</div>
+<!-- Modals -->
+<app-create-post *ngIf="modalService.activeModal() === 'create-post'"></app-create-post>
+<app-edit-post *ngIf="modalService.activeModal() === 'edit-post'"></app-edit-post>
+<app-post-details *ngIf="modalService.activeModal() === 'post-details'"
+    [post]="modalService.modalData()"></app-post-details>
+<app-report-modal *ngIf="modalService.activeModal() === 'report-post'"
+    [type]="modalService.modalData()?.reportType || 'post'"></app-report-modal>
+<app-success-posted *ngIf="modalService.activeModal() === 'success'"></app-success-posted>
+<app-delete-modal *ngIf="modalService.activeModal() === 'delete-v2'"
+    [post]="modalService.modalData()"></app-delete-modal>
+<app-media-viewer *ngIf="modalService.activeModal() === 'media-viewer'"
+    [data]="modalService.modalData()"></app-media-viewer>

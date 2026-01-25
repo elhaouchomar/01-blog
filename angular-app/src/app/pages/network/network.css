@@ -1,0 +1,190 @@
+/* ===== NETWORK PAGE ===== */
+.network-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .network-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1280px) {
+    .network-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.network-user-card {
+    background-color: var(--surface-light);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-100);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    transition: box-shadow 0.2s;
+}
+
+@media (min-width: 768px) {
+    .network-user-card {
+        padding: 1.25rem;
+    }
+}
+
+.dark .network-user-card {
+    background-color: var(--surface-dark);
+    border-color: var(--gray-800);
+}
+
+.network-user-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.btn-close-card {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    color: var(--gray-300);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.btn-close-card:hover {
+    color: var(--text-secondary);
+}
+
+.network-avatar {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 9999px;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 0.75rem;
+    border: 4px solid var(--gray-50);
+    flex-shrink: 0;
+}
+
+.dark .network-avatar {
+    border-color: var(--gray-800);
+}
+
+.avatar-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--gray-100);
+    color: var(--primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.dark .avatar-initials {
+    background-color: var(--gray-800);
+}
+
+.network-user-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-decoration: none;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.dark .network-user-name {
+    color: white;
+}
+
+.network-user-role {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.network-user-bio {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    padding: 0 0.5rem;
+}
+
+.network-actions {
+    margin-top: auto;
+    width: 100%;
+}
+
+.btn-subscribe {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: var(--primary);
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.btn-subscribe:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-subscribe.subscribed {
+    background-color: var(--gray-200);
+    color: var(--text-main);
+}
+
+.dark .btn-subscribe.subscribed {
+    background-color: var(--gray-700);
+    color: #e5e7eb;
+}
+
+.load-more-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn-load-more-people {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.5rem;
+    background-color: var(--surface-light);
+    border: 1px solid var(--gray-200);
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+}
+
+.dark .btn-load-more-people {
+    background-color: var(--surface-dark);
+    border-color: var(--gray-700);
+    color: white;
+}
+
+.btn-load-more-people:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}

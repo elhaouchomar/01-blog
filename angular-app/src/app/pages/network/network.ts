@@ -1,0 +1,74 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { NavbarComponent } from '../../components/navbar/navbar';
+import { SidebarComponent } from '../../components/left-sidebar/left-sidebar';
+import { RightSidebarComponent } from '../../components/right-sidebar/right-sidebar';
+import { DataService } from '../../services/data.service';
+import { User } from '../../models/data.models';
+import { ModalService } from '../../services/modal.service';
+
+@Component({
+    selector: 'app-network',
+    standalone: true,
+    imports: [CommonModule, RouterModule, NavbarComponent, SidebarComponent, RightSidebarComponent],
+    templateUrl: './network.html',
+    styleUrl: './network.css'
+})
+export class Network implements OnInit {
+    users: User[] = [];
+
+    constructor(
+        private dataService: DataService,
+        protected modalService: ModalService,
+        private cdr: ChangeDetectorRef
+    ) { }
+
+    ngOnInit() {
+        // Load immediately
+        this.loadUsers();
+
+        // Also reload when user state changes
+        this.dataService.currentUser$.subscribe(user => {
+            if (user) {
+                this.loadUsers();
+            }
+        });
+    }
+
+    loadUsers() {
+        this.dataService.getUsers().subscribe({
+            next: (data: User[]) => {
+                this.users = data; // Keep original data, handle fallback in template
+                this.cdr.detectChanges();
+            },
+            error: (err) => console.error('Error loading users', err)
+        });
+    }
+
+    getInitials(name: string): string {
+        if (!name) return '?';
+        const parts = name.trim().split(' ');
+        if (parts.length === 1) {
+            return parts[0].charAt(0).toUpperCase();
+        }
+        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+
+    toggleSubscribe(event: any) {
+        const btn = event.currentTarget;
+        btn.classList.toggle('subscribed');
+        const isSubscribed = btn.classList.contains('subscribed');
+
+        const textSpan = btn.querySelector('span:last-child');
+        const iconSpan = btn.querySelector('.material-symbols-outlined');
+
+        if (isSubscribed) {
+            if (textSpan) textSpan.innerText = 'Subscribed';
+            if (iconSpan) iconSpan.innerText = 'check';
+        } else {
+            if (textSpan) textSpan.innerText = 'Subscribe';
+            if (iconSpan) iconSpan.innerText = 'add';
+        }
+    }
+}

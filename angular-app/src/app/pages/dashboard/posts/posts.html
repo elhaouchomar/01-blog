@@ -1,0 +1,84 @@
+<div class="flex flex-col gap-6">
+    <!-- Toolbar -->
+    <div class="admin-toolbar">
+        <h2 class="text-xl font-bold text-text-main dark:text-white">Post Management</h2>
+        <div class="admin-search-bar">
+            <span class="material-symbols-outlined text-gray-400">search</span>
+            <input class="admin-search-input" placeholder="Search posts..." type="text" [(ngModel)]="searchQuery"
+                (input)="filterPosts()" />
+        </div>
+        <button class="btn btn-primary" (click)="modalService.open('create-post')">
+            <span class="material-symbols-outlined">add</span> Create Post
+        </button>
+    </div>
+
+    <!-- Data Table -->
+    <div class="admin-table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Post Content</th>
+                    <th>Author</th>
+                    <th>Stats</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let post of filteredPosts">
+                    <td>
+                        <div class="flex gap-4">
+                            <!-- Thumbnail (if image exists) -->
+                            <div *ngIf="post.image" class="w-12 h-12 rounded-lg bg-cover bg-center flex-shrink-0"
+                                [style.background-image]="'url(' + post.image + ')'"></div>
+
+                            <div class="flex flex-col gap-1">
+                                <p class="font-medium text-text-main dark:text-white line-clamp-2 max-w-md">
+                                    {{ post.title }}
+                                </p>
+                                <p class="text-xs text-text-secondary line-clamp-1 max-w-md">{{ post.content }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full bg-gray-200 bg-cover bg-center"
+                                [style.background-image]="'url(' + (post.author?.avatar || 'assets/default-avatar.png') + ')'">
+                            </div>
+                            <span class="text-sm text-text-main dark:text-white">{{ post.author?.username || 'Unknown'
+                                }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex flex-col gap-1 text-xs text-text-secondary">
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">favorite</span>
+                                {{ post.likes?.length || 0 }}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">chat_bubble</span>
+                                {{ post.comments?.length || 0 }}
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge active">Published</span>
+                    </td>
+                    <td class="text-right">
+                        <div class="action-btn-group">
+                            <button class="action-btn-sm" (click)="openPost(post)" title="View">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
+                            <button class="action-btn-sm danger" (click)="deletePost(post)" title="Delete">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div *ngIf="filteredPosts.length === 0" class="p-6 text-center text-text-secondary">
+            No posts found.
+        </div>
+    </div>
+</div>

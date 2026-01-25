@@ -1,0 +1,57 @@
+<div class="page-container">
+    <app-navbar></app-navbar>
+
+    <div class="content-wrapper">
+        <!-- Sidebar -->
+        <app-sidebar class="sidebar"></app-sidebar>
+
+        <!-- Main Feed -->
+        <main class="main-feed">
+            <!-- Create Post Input -->
+            <!-- Create Post Input -->
+            <div class="create-post-widget" *ngIf="currentUser">
+                <div class="widget-upper">
+                    <div class="widget-avatar" [style.background-image]="'url(' + currentUser.avatar + ')'"></div>
+                    <button class="widget-input-btn" (click)="modalService.open('create-post')">
+                        What have you learned today?
+                    </button>
+                </div>
+                <div class="widget-lower">
+                    <div class="widget-actions">
+                        <button class="action-btn">
+                            <span class="material-symbols-outlined text-blue">image</span>
+                            <span class="action-label">Media</span>
+                        </button>
+                        <button class="action-btn">
+                            <span class="material-symbols-outlined text-purple">calendar_month</span>
+                            <span class="action-label">Event</span>
+                        </button>
+                        <button class="action-btn">
+                            <span class="material-symbols-outlined text-orange">article</span>
+                            <span class="action-label">Article</span>
+                        </button>
+                    </div>
+                    <button class="drafts-btn">Drafts</button>
+                </div>
+            </div>
+
+            <!-- Posts List -->
+            <div class="post-list">
+                <div class="loading-state" *ngIf="isLoading"
+                    style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                    Loading posts...
+                </div>
+
+                <div class="empty-state" *ngIf="!isLoading && posts.length === 0"
+                    style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                    No posts yet. Be the first to share something!
+                </div>
+
+                <app-post-card *ngFor="let post of posts" [post]="post"></app-post-card>
+            </div>
+        </main>
+
+        <!-- Right Sidebar (Suggestions) -->
+        <app-right-sidebar class="sidebar"></app-right-sidebar>
+    </div>
+</div>

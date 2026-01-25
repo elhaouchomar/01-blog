@@ -1,0 +1,56 @@
+<div class="page-container">
+    <app-navbar></app-navbar>
+
+    <div class="content-wrapper">
+        <!-- Left Sidebar -->
+        <app-sidebar class="sidebar"></app-sidebar>
+
+        <!-- Main Content -->
+        <main class="main-feed">
+
+            <!-- User Grid -->
+            <div class="network-grid">
+                <div *ngFor="let user of users" class="network-user-card">
+                    <button class="btn-close-card">
+                        <span class="material-symbols-outlined icon-small">close</span>
+                    </button>
+
+                    <div class="network-avatar" *ngIf="user.avatar"
+                        [style.background-image]="'url(' + user.avatar + ')'">
+                    </div>
+                    <div class="network-avatar avatar-initials" *ngIf="!user.avatar">
+                        {{ getInitials(user.name) }}
+                    </div>
+
+                    <a class="network-user-name cursor-pointer hover:underline"
+                        (click)="modalService.open('post-details', {id: user.id})">
+                        {{ user.name }}
+                    </a>
+
+                    <p class="network-user-role">{{ user.role }}</p>
+
+                    <p class="network-user-bio" *ngIf="user.bio">{{ user.bio }}</p>
+                    <p class="network-user-bio" *ngIf="!user.bio">Passionate about tech. Let's connect!</p>
+
+                    <div class="network-actions">
+                        <button (click)="toggleSubscribe($event)" class="btn-subscribe">
+                            <span class="material-symbols-outlined icon-small">add</span>
+                            <span>Subscribe</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Load More -->
+            <div class="load-more-container">
+                <button class="btn-load-more-people">
+                    Load more people
+                    <span class="material-symbols-outlined icon-small">expand_more</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- Right Sidebar (Trending) -->
+        <app-right-sidebar class="sidebar"></app-right-sidebar>
+    </div>
+</div>

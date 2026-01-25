@@ -1,0 +1,82 @@
+<div class="modal-overlay" (click)="close()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Edit Post</h2>
+            <button class="modal-close-btn" (click)="close()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- Content -->
+        <div class="modal-content custom-scrollbar">
+            <form class="modal-form">
+                <!-- Title Input -->
+                <div class="form-group">
+                    <input [(ngModel)]="title" name="title" type="text" class="input-field" placeholder="Post title..."
+                        style="font-size: 1.5rem; font-weight: 700;" />
+                </div>
+
+                <!-- Content Textarea -->
+                <div class="form-group">
+                    <textarea [(ngModel)]="content" name="content" class="textarea-field"
+                        placeholder="Share your thoughts..."></textarea>
+                </div>
+
+                <!-- Media Upload Input -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="material-symbols-outlined">image</span>
+                        Change Images or Videos (optional)
+                    </label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="mediaFileEdit" #fileInput accept="image/*,video/*" multiple
+                            (change)="onFileSelected($event)" class="file-input" />
+                        <label for="mediaFileEdit" class="file-upload-btn">
+                            <span class="material-symbols-outlined">upload</span>
+                            Choose Files
+                        </label>
+                        <span class="file-name" *ngIf="selectedFileNames.length > 0">{{ selectedFileNames.length }}
+                            file(s) selected</span>
+                    </div>
+                    <div
+                        style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; font-style: italic;">
+                        Hold Ctrl (Windows) or Cmd (Mac) to select multiple files.
+                    </div>
+                </div>
+
+                <!-- Media Preview Grid -->
+                <div class="media-preview-grid" *ngIf="imageUrls.length > 0">
+                    <div class="preview-item" *ngFor="let url of imageUrls; let i = index">
+                        <button type="button" class="remove-media-item-btn" (click)="removeMedia(i)">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+
+                        <!-- Video Preview -->
+                        <div *ngIf="isVideo(url)" class="video-preview-item">
+                            <video controls class="preview-video-thumb">
+                                <source [src]="url" type="video/mp4">
+                            </video>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div *ngIf="!isVideo(url)" class="image-preview-item">
+                            <img [src]="url" alt="Preview" class="preview-image-thumb" />
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="close()">
+                Cancel
+            </button>
+            <button class="btn btn-primary" [disabled]="!title || !content" (click)="updatePost()">
+                <span class="material-symbols-outlined" style="font-size: 18px;">save</span>
+                Update Post
+            </button>
+        </div>
+    </div>
+</div>

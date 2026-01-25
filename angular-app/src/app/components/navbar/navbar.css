@@ -1,0 +1,97 @@
+/* Navbar Specific Styles */
+
+/* Ensure host displays effectively block for layout */
+:host {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    width: 100%;
+}
+
+/* Navigation Items (Buttons that look like links) */
+button.nav-item {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+}
+
+.nav-item.active {
+    color: var(--primary);
+}
+
+.active .nav-item-icon,
+.active .material-symbols-outlined,
+.nav-item.active .nav-item-icon {
+    font-variation-settings: 'FILL' 1;
+}
+
+/* Icons */
+.material-symbols-outlined.filled {
+    font-variation-settings: 'FILL' 1;
+}
+
+.icon-edit {
+    font-size: 1.25rem;
+}
+
+/* Button Refinements */
+.btn-create-post {
+    margin-left: 0.5rem;
+    padding: 0.5rem;
+    min-width: unset;
+}
+
+.btn-create-post span:not(.material-symbols-outlined) {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .btn-create-post {
+        padding: 0.5rem 1rem;
+    }
+
+    .btn-create-post span:not(.material-symbols-outlined) {
+        display: inline;
+    }
+}
+
+/* Notification Badge */
+.notif-wrapper {
+    position: relative;
+}
+
+.icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background-color: var(--danger);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 800;
+    min-width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid var(--surface-light);
+    pointer-events: none;
+}
+
+/* Ensure dropdown notification aligns nicely in nav-links */
+app-dropdown-notif {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    right: -1rem;
+    z-index: 1000;
+}

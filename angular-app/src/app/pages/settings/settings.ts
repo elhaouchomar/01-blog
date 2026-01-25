@@ -1,0 +1,99 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NavbarComponent } from '../../components/navbar/navbar';
+import { SidebarComponent } from '../../components/left-sidebar/left-sidebar';
+import { DataService } from '../../services/data.service';
+import { User } from '../../models/data.models';
+
+@Component({
+    selector: 'app-settings',
+    standalone: true,
+    imports: [CommonModule, NavbarComponent, SidebarComponent, FormsModule],
+    templateUrl: './settings.html',
+    styleUrl: './settings.css'
+})
+export class Settings implements OnInit {
+    activeTab: string = 'Account';
+    user: User | null = null;
+    editForm = {
+        firstname: '',
+        lastname: '',
+        bio: '',
+        avatar: '',
+        cover: ''
+    };
+
+    constructor(private dataService: DataService) { }
+
+    ngOnInit() {
+        this.dataService.currentUser$.subscribe(user => {
+            this.user = user;
+            if (user) {
+                this.editForm = {
+                    firstname: user.firstname || '',
+                    lastname: user.lastname || '',
+                    bio: user.bio || '',
+                    avatar: user.avatar || '',
+                    cover: user.cover || ''
+                };
+            }
+        });
+    }
+
+    setActiveTab(tab: string) {
+        this.activeTab = tab;
+    }
+
+    saveSettings() {
+        if (!this.user) return;
+        this.status = { message: 'Updating profile...', type: 'info', visible: true };
+
+        this.dataService.updateProfile(this.editForm).subscribe({
+            next: (updated) => {
+                this.showStatus('Profile updated successfully!', 'success');
+            },
+            error: (err) => {
+                console.error('Failed to update profile:', err);
+                this.showStatus('Failed to update profile. Please try again.', 'error');
+            }
+        });
+    }
+
+    status = {
+        message: '',
+        type: 'success' as 'success' | 'error' | 'info',
+        visible: false
+    };
+
+    private statusTimeout: any;
+
+    showStatus(message: string, type: 'success' | 'error' | 'info' = 'success') {
+        clearTimeout(this.statusTimeout);
+        this.status = { message, type, visible: true };
+        this.statusTimeout = setTimeout(() => {
+            this.status.visible = false;
+        }, 5000);
+    }
+
+    onFileSelected(event: any, type: 'avatar' | 'cover') {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                if (type === 'avatar') {
+                    this.editForm.avatar = e.target.result;
+                } else {
+                    this.editForm.cover = e.target.result;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    deleteAccount() {
+        if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+            alert('Account deletion simulated.');
+        }
+    }
+}

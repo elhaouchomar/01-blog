@@ -1,0 +1,47 @@
+<!-- Modal Dialog Overlay -->
+<div class="modal-overlay" id="confirmDeleteModal" aria-labelledby="modal-title" aria-modal="true" role="dialog"
+    (click)="modalService.close()">
+    <!-- Backdrop inside overlay for click handling -->
+
+    <!-- Modal Panel Positioning -->
+    <div class="modal-positioning">
+        <!-- Modal Card -->
+        <div class="modal-card-new" (click)="$event.stopPropagation()">
+            <!-- Modal Content -->
+            <div class="modal-content-new">
+                <div class="content-flex">
+                    <!-- Warning Icon -->
+                    <div class="modal-icon-wrapper">
+                        <span class="material-symbols-outlined icon-danger">delete</span>
+                    </div>
+
+                    <!-- Text Content -->
+                    <div class="text-wrapper">
+                        <h3 class="modal-title-new" id="modal-title">
+                            Delete this post?
+                        </h3>
+                        <div class="modal-message-new">
+                            <p class="modal-description-new">
+                                <!-- You are about to delete <span class="post-title-new">"{{ post?.title }}"</span>. -->
+                                This action cannot be undone and will be permanently removed from your profile.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Actions -->
+            <div class="actions-bar">
+                <!-- Delete Button (Destructive) -->
+                <button class="btn-delete-new" type="button" (click)="deletePost()">
+                    <span class="material-symbols-outlined btn-icon-new">delete</span>
+                    <span>Delete Post</span>
+                </button>
+                <!-- Cancel Button (Secondary) -->
+                <button class="btn-cancel-new" type="button" (click)="modalService.close()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

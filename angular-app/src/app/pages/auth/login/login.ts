@@ -29,9 +29,7 @@ export class Login {
             .subscribe({
                 next: (response) => {
                     console.log('Login successful:', response);
-                    this.router.navigate(['/']).then(() => {
-                        alert('Login successful! Welcome back.');
-                    });
+                    window.location.href = '/';
                 },
                 error: (err) => {
                     this.error = err.error?.message || 'Login failed. Please check your credentials.';

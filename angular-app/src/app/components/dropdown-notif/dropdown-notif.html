@@ -1,0 +1,62 @@
+<div class="dropdown-container">
+    <!-- Trigger button handled by parent (Navbar) usually, but here checking context. -->
+    <div class="dropdown-menu show" (click)="$event.stopPropagation()">
+        <div class="dropdown-header">
+            <h3 class="dropdown-title">Notifications</h3>
+            <div class="header-actions">
+                <button class="mark-read-btn" (click)="onMarkAllRead.emit()">Mark all read</button>
+            </div>
+        </div>
+
+        <div class="dropdown-content custom-scrollbar">
+            <div *ngIf="notifications.length === 0" class="empty-notifs">
+                <span class="material-symbols-outlined">notifications_off</span>
+                <p>No notifications yet</p>
+            </div>
+
+            <div *ngFor="let n of notifications" class="notification-item" [class.unread]="!n.isRead"
+                (click)="onNotificationClick.emit(n)">
+
+                <div class="notif-avatar-container">
+                    <div class="avatar" *ngIf="n.actorAvatar" [style.background-image]="'url(' + n.actorAvatar + ')'">
+                    </div>
+                    <div class="avatar avatar-initials" *ngIf="!n.actorAvatar">
+                        {{ getInitials(n.actorName) }}
+                    </div>
+                    <div class="notif-icon-badge" [ngClass]="{
+                        'like-type': n.type === 'LIKE',
+                        'comment-type': n.type === 'COMMENT',
+                        'follow-type': n.type === 'FOLLOW'
+                    }">
+                        <span class="material-symbols-outlined icon-small" *ngIf="n.type === 'LIKE'">favorite</span>
+                        <span class="material-symbols-outlined icon-small" *ngIf="n.type === 'COMMENT'">chat</span>
+                        <span class="material-symbols-outlined icon-small" *ngIf="n.type === 'FOLLOW'">person_add</span>
+                        <span class="material-symbols-outlined icon-small" *ngIf="n.type === 'SYSTEM'">info</span>
+                    </div>
+                </div>
+
+                <div class="notif-content">
+                    <div class="notif-top-row">
+                        <a class="actor-name" 
+                           (click)="handleActorClick(n, $event)"
+                           [routerLink]="['/profile', n.actorId]"
+                           style="cursor: pointer; text-decoration: none; color: inherit; font-weight: 600;">
+                            {{ n.actorName }}
+                        </a>
+                        <span class="notif-time">{{ formatDate(n.createdAt) }}</span>
+                    </div>
+                    <p class="notif-text">{{ n.message }}</p>
+                </div>
+
+                <span class="unread-dot" *ngIf="!n.isRead"></span>
+            </div>
+        </div>
+
+        <div class="dropdown-footer">
+            <a class="view-all-btn" routerLink="/notifications" (click)="onClose.emit()">
+                <span>View all notifications</span>
+                <span class="material-symbols-outlined icon-arrow">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+</div>

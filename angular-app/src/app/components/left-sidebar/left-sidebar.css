@@ -1,0 +1,221 @@
+:host {
+    display: none;
+    position: sticky;
+    top: 5.5rem;
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+@media (min-width: 1024px) {
+    :host {
+        display: block;
+    }
+}
+
+:host::-webkit-scrollbar {
+    display: none;
+}
+
+.left-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.sidebar-card {
+    background-color: var(--surface-light);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-100);
+    overflow: hidden;
+}
+
+/* Profile Card Specifics */
+.profile-cover {
+    height: 4rem;
+    background: linear-gradient(to right, #60a5fa, var(--primary));
+}
+
+.profile-info {
+    padding: 0 1rem 1rem;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    margin-top: -2rem;
+    margin-bottom: 0.75rem;
+}
+
+.profile-avatar {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    border: 4px solid var(--surface-light);
+    background-size: cover;
+    background-position: center;
+}
+
+.profile-name {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-decoration: none;
+    line-height: 1.25;
+}
+
+.profile-name:hover {
+    text-decoration: underline;
+}
+
+.profile-bio {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.profile-stats {
+    border-top: 1px solid var(--gray-100);
+    padding-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.stat-value {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* Menu Card Specifics */
+.menu-card {
+    padding: 0.5rem;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.menu-item:hover {
+    background-color: var(--gray-50);
+    color: var(--text-main);
+}
+
+.menu-item.active {
+    background-color: rgba(19, 19, 236, 0.1);
+    color: var(--primary);
+}
+
+.menu-item.active .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1;
+}
+
+.menu-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Dark mode support */
+:host-context(.dark) .sidebar-card {
+    background-color: var(--surface-dark);
+    border-color: var(--gray-800);
+}
+
+:host-context(.dark) .profile-avatar {
+    border-color: var(--surface-dark);
+}
+
+:host-context(.dark) .profile-name {
+    color: white;
+}
+
+:host-context(.dark) .profile-stats {
+    border-top-color: var(--gray-800);
+}
+
+:host-context(.dark) .menu-item:hover {
+    background-color: var(--gray-800);
+    color: white;
+}
+
+/* Guest Card Specifics */
+.profile-cover.guest {
+    background: linear-gradient(to right, var(--gray-400), var(--gray-600));
+}
+
+.profile-avatar.guest {
+    background-color: var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.guest-icon {
+    font-size: 2rem;
+    color: var(--gray-500);
+}
+
+.guest-info {
+    text-align: center;
+    padding-bottom: 0.5rem;
+}
+
+.guest-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--text-main);
+}
+
+.guest-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.guest-login-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+/* Icons */
+.material-symbols-outlined.filled {
+    font-variation-settings: 'FILL' 1;
+}
+
+/* Dark mode overrides for new classes */
+:host-context(.dark) .profile-cover.guest {
+    background: linear-gradient(to right, var(--gray-700), var(--gray-500));
+}
+
+:host-context(.dark) .profile-avatar.guest {
+    background-color: var(--gray-700);
+}
+
+:host-context(.dark) .guest-icon {
+    color: var(--gray-400);
+}
+
+:host-context(.dark) .guest-title {
+    color: white;
+}

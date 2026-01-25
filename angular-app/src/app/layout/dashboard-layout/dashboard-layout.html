@@ -1,0 +1,58 @@
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <div class="brand">
+                <div class="brand-logo">01</div>
+                <div class="brand-text">
+                    <h1>01Blog</h1>
+                    <p>Admin Panel</p>
+                </div>
+            </div>
+
+            <nav class="dashboard-nav">
+                <a class="nav-link" routerLink="/dashboard/posts" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{exact: true}">
+                    <span class="material-symbols-outlined nav-icon">article</span>
+                    <span>Posts</span>
+                </a>
+
+                <a class="nav-link" routerLink="/dashboard/users" routerLinkActive="active">
+                    <span class="material-symbols-outlined nav-icon">group</span>
+                    <span>Users</span>
+                </a>
+
+                <a class="nav-link" (click)="modalService.open('report', { reportType: 'post' })"
+                    [class.active]="modalService.activeModal() === 'report'">
+                    <span class="material-symbols-outlined nav-icon">flag</span>
+                    <span>Reports</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn">
+                <span class="material-symbols-outlined">logout</span>
+                Logout
+            </button>
+
+            <div class="user-profile">
+                <div class="profile-pic"
+                    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDUOEaKCZruhcAtGzyeHUGKUFAuc6avKS9o1eRUQ5Bm5UqKHFsYbe-JPD5NxMEC08YahKfX8CheIZnxfiwc0LYLQuca2ZsKGcgLEuyCsigMNnLcYoazV9FJrijNOYQX5Gd8QE5jXRoRbEBH9lcZnFWCvYy6Uut4oDYbCczMdFL7uQwhm6QibUFKb9hJRuyI6fLhTCmEoOC-GpKwABlPkjFy42pSyuJmxPuw5xbpMtaqNdVlbujiWVjeryeUo_UB7QgXg5XVp7-Xq_iU');">
+                </div>
+                <div class="user-info">
+                    <p class="user-name">Admin User</p>
+                    <p class="user-role">Moderator</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <app-navbar></app-navbar>
+        <div class="dashboard-content">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+</div>

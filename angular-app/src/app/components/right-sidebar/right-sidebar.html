@@ -1,0 +1,27 @@
+<aside class="right-sidebar">
+    <!-- Suggestions Section (Pure User List) -->
+    <div class="sidebar-card">
+        <h2 class="card-title mb-4">Who to subscribe</h2>
+        <ul class="follow-list">
+            <li class="follow-item" *ngFor="let user of suggestedUsers">
+                <div class="avatar" *ngIf="user.avatar" [style.background-image]="'url(' + user.avatar + ')'"></div>
+                <div class="avatar avatar-initials" *ngIf="!user.avatar">
+                    {{ getInitials(user.name) }}
+                </div>
+                <div class="user-info">
+                    <a [routerLink]="['/profile', user.id]" class="user-name">{{ user.name }}</a>
+                    <p class="user-bio">{{ user.role || 'Member' }}</p>
+                    <button class="follow-btn" (click)="toggleSubscribe($event)">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        <span>Subscribe</span>
+                    </button>
+                </div>
+            </li>
+        </ul>
+        <!-- Empty state if no suggestions -->
+        <div *ngIf="suggestedUsers.length === 0" class="p-4 text-center text-secondary">
+            <p style="font-size: 0.875rem;">Finding connections...</p>
+        </div>
+        <a class="view-all-link" routerLink="/network">View all recommendations</a>
+    </div>
+</aside>
