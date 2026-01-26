@@ -29,6 +29,7 @@ export class Notifications implements OnInit {
             'Comments': 'COMMENT',
             'Likes': 'LIKE',
             'Follows': 'FOLLOW',
+            'Posts': 'NEW_POST',
             'Events': 'SYSTEM'
         };
         const type = map[filter];
@@ -71,7 +72,7 @@ export class Notifications implements OnInit {
         }
 
         // Navigate based on notification type
-        if (notification.type === 'LIKE' || notification.type === 'COMMENT') {
+        if (notification.type === 'LIKE' || notification.type === 'COMMENT' || notification.type === 'NEW_POST') {
             // Redirect to post detail page
             if (notification.entityId) {
                 this.router.navigate(['/post', notification.entityId]);

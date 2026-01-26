@@ -142,7 +142,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         }
 
         // Navigate based on notification type
-        if (notification.type === 'LIKE' || notification.type === 'COMMENT') {
+        if (notification.type === 'LIKE' || notification.type === 'COMMENT' || notification.type === 'NEW_POST') {
             // Redirect to post detail page
             if (notification.entityId) {
                 this.router.navigate(['/post', notification.entityId]);

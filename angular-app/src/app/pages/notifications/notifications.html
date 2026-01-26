@@ -31,6 +31,8 @@
                     (click)="setFilter('Likes')">Likes</button>
                 <button class="filter-btn" [class.active]="activeFilter() === 'Follows'"
                     (click)="setFilter('Follows')">Follows</button>
+                <button class="filter-btn" [class.active]="activeFilter() === 'Posts'"
+                    (click)="setFilter('Posts')">Posts</button>
                 <button class="filter-btn" [class.active]="activeFilter() === 'Events'"
                     (click)="setFilter('Events')">Events</button>
             </div>
