@@ -23,13 +23,13 @@ export const routes: Routes = [
     { path: 'login', component: Login },
     { path: 'register', component: Register },
     { path: 'home', component: Home, canActivate: [authGuard] },
-    { path: 'profile', component: Profile },
-    { path: 'profile/:id', component: Profile },
+    { path: 'profile', component: Profile, canActivate: [authGuard] },
+    { path: 'profile/:id', component: Profile, canActivate: [authGuard] },
     { path: 'post/:id', component: PostDetail, canActivate: [authGuard] },
 
-    { path: 'notifications', component: Notifications },
-    { path: 'network', component: Network },
-    { path: 'settings', component: Settings },
+    { path: 'notifications', component: Notifications, canActivate: [authGuard] },
+    { path: 'network', component: Network, canActivate: [authGuard] },
+    { path: 'settings', component: Settings, canActivate: [authGuard] },
     {
         path: 'dashboard',
         component: DashboardLayout,

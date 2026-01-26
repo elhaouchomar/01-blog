@@ -1,41 +1,90 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed, WritableSignal, effect, Injector, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, BehaviorSubject, map } from 'rxjs';
+import { Observable, tap, map, finalize } from 'rxjs';
 import { User, Post, Notification, Comment, AuthenticationRequest, AuthenticationResponse, RegisterRequest, CreatePostRequest } from '../models/data.models';
 
 @Injectable({
     providedIn: 'root'
 })
 export class DataService {
-
-    // Current user state management
-    private currentUserSubject = new BehaviorSubject<User | null>(null);
-    public currentUser$ = this.currentUserSubject.asObservable();
-
+    public injector = inject(Injector);
     private API_URL = 'http://localhost:8080/api/v1';
 
+    // Signals state
+    private _currentUser = signal<User | null>(null);
+    private _posts = signal<Post[]>([]);
+    private _users = signal<User[]>([]);
+    private _notifications = signal<Notification[]>([]);
+    private _dashboardStats = signal<any>(null);
+    private _reports = signal<any[]>([]);
+    private _authChecked = signal<boolean>(false);
+
+    // Public Signals
+    readonly currentUser = this._currentUser.asReadonly();
+    readonly authChecked = this._authChecked.asReadonly();
+    readonly posts = this._posts.asReadonly();
+    readonly allUsers = this._users.asReadonly();
+    readonly notifications = this._notifications.asReadonly();
+    readonly dashboardStats = this._dashboardStats.asReadonly();
+    readonly reports = this._reports.asReadonly();
+
+    // Compatibility observables
+    readonly currentUser$ = new Observable<User | null>(observer => {
+        const sub = effect(() => {
+            observer.next(this._currentUser());
+        }, { injector: this.injector });
+        return () => { };
+    });
+
+    // Computed Signals
+    readonly isAdmin = computed(() => this._currentUser()?.role === 'ADMIN');
+    readonly isLoggedIn = computed(() => this._currentUser() !== null);
+    readonly unreadNotificationsCount = computed(() =>
+        this._notifications().filter(n => !n.isRead).length
+    );
+
     constructor(private http: HttpClient) {
-        // Check for token and fetch user profile
+        this.initializeAuth();
+        if (this.isLoggedIn()) {
+            this.refreshAllData();
+        }
+    }
+
+    private initializeAuth() {
         const token = localStorage.getItem('auth_token');
         if (token) {
-            // Fetch real user profile from backend
             this.getProfile().subscribe({
-                next: (user) => console.log('User profile loaded:', user),
+                next: () => this._authChecked.set(true),
                 error: (err) => {
-                    console.error('Failed to load user profile:', err);
                     if (err.status === 401 || err.status === 403) {
-                        console.warn('Token is invalid or expired, clearing...');
-                        localStorage.removeItem('auth_token');
-                        this.currentUserSubject.next(null);
+                        this.handleTokenExpiration();
                     }
+                    this._authChecked.set(true);
                 }
             });
+        } else {
+            this._authChecked.set(true);
+        }
+    }
+
+    private handleTokenExpiration() {
+        localStorage.removeItem('auth_token');
+        this._currentUser.set(null);
+    }
+
+    refreshAllData() {
+        this.loadPosts();
+        this.loadNotifications();
+        if (this.isAdmin()) {
+            this.loadUsers();
+            this.loadDashboardStats();
+            this.loadReports();
         }
     }
 
     logout() {
         localStorage.removeItem('auth_token');
-        this.currentUserSubject.next(null);
+        this._currentUser.set(null);
         window.location.href = '/login';
     }
 
@@ -46,7 +95,7 @@ export class DataService {
             .pipe(
                 tap(response => {
                     localStorage.setItem('auth_token', response.token);
-                    this.getProfile().subscribe(); // Fetch profile immediately
+                    this.getProfile().subscribe(() => this.refreshAllData());
                 })
             );
     }
@@ -56,114 +105,168 @@ export class DataService {
             .pipe(
                 tap(response => {
                     localStorage.setItem('auth_token', response.token);
-                    this.getProfile().subscribe(); // Fetch profile immediately
+                    this.getProfile().subscribe(() => this.refreshAllData());
                 })
             );
     }
 
-    getProfile(): Observable<any> {
+    // Admin method to create user without logging in as them
+    provisionUser(request: RegisterRequest): Observable<AuthenticationResponse> {
+        return this.http.post<AuthenticationResponse>(`${this.API_URL}/auth/register`, request);
+    }
+
+    getProfile(): Observable<User> {
         return this.http.get<any>(`${this.API_URL}/users/me`)
             .pipe(
-                tap((userDTO: any) => {
-                    console.log('User profile loaded:', userDTO);
-                    const user = this.mapDTOToUser(userDTO);
-                    this.currentUserSubject.next(user);
-                })
+                map(dto => this.mapDTOToUser(dto)),
+                tap(user => this._currentUser.set(user))
             );
     }
 
     getUserById(userId: number): Observable<User> {
         return this.http.get<any>(`${this.API_URL}/users/${userId}`)
-            .pipe(
-                tap((userDTO: any) => {
-                    console.log('User profile loaded by ID:', userDTO);
-                }),
-                map((userDTO: any) => this.mapDTOToUser(userDTO))
-            );
+            .pipe(map(dto => this.mapDTOToUser(dto)));
     }
 
-    // --- Data Manipulation Methods ---
+    getUsers(): Observable<User[]> {
+        return this.http.get<User[]>(`${this.API_URL}/users`).pipe(
+            map(users => users.map(u => this.mapDTOToUser(u)))
+        );
+    }
+
+    // --- Data Loading Methods (Update Signals) ---
+
+    loadPosts() {
+        this.http.get<Post[]>(`${this.API_URL}/posts`).subscribe({
+            next: (posts) => this._posts.set(posts),
+            error: (err) => console.error('Failed to load posts:', err)
+        });
+    }
+
+    loadUsers() {
+        this.http.get<User[]>(`${this.API_URL}/users`).subscribe({
+            next: (users) => this._users.set(users.map(u => this.mapDTOToUser(u))),
+            error: (err) => console.error('Failed to load users:', err)
+        });
+    }
+
+    loadNotifications() {
+        this.http.get<Notification[]>(`${this.API_URL}/notifications`).subscribe({
+            next: (notifs) => this._notifications.set(notifs),
+            error: (err) => console.error('Failed to load notifications:', err)
+        });
+    }
+
+    loadDashboardStats() {
+        this.http.get<any>(`${this.API_URL}/dashboard/stats`).subscribe({
+            next: (stats) => this._dashboardStats.set(stats),
+            error: (err) => console.error('Failed to load dashboard stats:', err)
+        });
+    }
+
+    loadReports() {
+        this.http.get<any[]>(`${this.API_URL}/reports`).subscribe({
+            next: (reports) => this._reports.set(reports),
+            error: (err) => console.error('Failed to load reports:', err)
+        });
+    }
+
+    // --- Action Methods (Mutation + Refresh) ---
 
     addPost(post: CreatePostRequest): Observable<Post> {
-        return this.http.post<Post>(`${this.API_URL}/posts`, post);
+        return this.http.post<Post>(`${this.API_URL}/posts`, post).pipe(
+            tap(() => this.loadPosts())
+        );
     }
 
     updatePost(id: number, post: CreatePostRequest): Observable<Post> {
-        return this.http.put<Post>(`${this.API_URL}/posts/${id}`, post);
+        return this.http.put<Post>(`${this.API_URL}/posts/${id}`, post).pipe(
+            tap(() => this.loadPosts())
+        );
     }
 
     deletePost(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.API_URL}/posts/${id}`);
+        return this.http.delete<void>(`${this.API_URL}/posts/${id}`).pipe(
+            tap(() => this.loadPosts())
+        );
     }
 
     toggleLike(postId: number): Observable<Post> {
-        return this.http.post<Post>(`${this.API_URL}/posts/${postId}/like`, {});
+        return this.http.post<Post>(`${this.API_URL}/posts/${postId}/like`, {}).pipe(
+            tap(() => this.loadPosts())
+        );
     }
 
     addComment(postId: number, content: string): Observable<Comment> {
-        return this.http.post<Comment>(`${this.API_URL}/posts/${postId}/comment`, { content });
+        return this.http.post<Comment>(`${this.API_URL}/posts/${postId}/comment`, { content }).pipe(
+            tap(() => this.loadPosts())
+        );
     }
 
     getCommentsForPost(postId: number): Observable<Comment[]> {
         return this.http.get<Comment[]>(`${this.API_URL}/posts/${postId}/comments`);
     }
 
-    // --- Getters ---
-
-    getCurrentUser(): User | null {
-        return this.currentUserSubject.value;
-    }
-
-    getPosts(): Observable<Post[]> {
-        return this.http.get<Post[]>(`${this.API_URL}/posts`);
-    }
-
-    getUserPosts(userId: number): Observable<Post[]> {
-        return this.http.get<Post[]>(`${this.API_URL}/posts/user/${userId}`);
-    }
-
-    getPost(id: number): Observable<Post> {
-        return this.http.get<Post>(`${this.API_URL}/posts/${id}`);
-    }
-
-    // --- Admin Methods ---
-
-    getUsers(): Observable<User[]> {
-        return this.http.get<User[]>(`${this.API_URL}/users`);
-    }
+    // --- Admin Action Methods ---
 
     deleteUserAction(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.API_URL}/users/${id}`);
+        return this.http.delete<void>(`${this.API_URL}/users/${id}`).pipe(
+            tap(() => {
+                this.loadUsers();
+                this.loadDashboardStats();
+            })
+        );
     }
 
-    // Assuming ban is an endpoint or toggle
     toggleBan(userId: number): Observable<any> {
-        // Backend specific: check if /users/{id}/ban exists or update logic
-        // For now using a placeholder or assuming generic update if not verified.
-        // Wait, requirements say "Admin can ... ban".
-        // Use a speculative endpoint, verify if 404 later.
-        return this.http.put(`${this.API_URL}/users/${userId}/ban`, {});
+        return this.http.put(`${this.API_URL}/users/${userId}/ban`, {}).pipe(
+            tap(() => {
+                this.loadUsers();
+                this.loadDashboardStats();
+            })
+        );
     }
 
-    // Notifications (stub for now)
-    // Notifications
-    getNotifications(): Observable<Notification[]> {
-        return this.http.get<Notification[]>(`${this.API_URL}/notifications`);
+    updateReportStatus(reportId: number, status: string): Observable<any> {
+        return this.http.put<any>(`${this.API_URL}/reports/${reportId}/status`, {}, { params: { status } }).pipe(
+            tap(() => {
+                this.loadReports();
+                this.loadDashboardStats();
+            })
+        );
     }
+
+    reportContent(reason: string, reportedUserId?: number, reportedPostId?: number): Observable<any> {
+        return this.http.post<any>(`${this.API_URL}/reports`, { reason, reportedUserId, reportedPostId }).pipe(
+            tap(() => {
+                if (this.isAdmin()) {
+                    this.loadReports();
+                    this.loadDashboardStats();
+                }
+            })
+        );
+    }
+
+    // --- Shared Methods ---
 
     markAsRead(id: number): Observable<void> {
-        return this.http.put<void>(`${this.API_URL}/notifications/${id}/read`, {});
+        return this.http.put<void>(`${this.API_URL}/notifications/${id}/read`, {}).pipe(
+            tap(() => this.loadNotifications())
+        );
     }
 
     markAllAsRead(): Observable<void> {
-        return this.http.put<void>(`${this.API_URL}/notifications/read-all`, {});
+        return this.http.put<void>(`${this.API_URL}/notifications/read-all`, {}).pipe(
+            tap(() => this.loadNotifications())
+        );
     }
 
     updateProfile(user: Partial<User>): Observable<User> {
         return this.http.put<any>(`${this.API_URL}/users/me`, user).pipe(
             tap((userDTO: any) => {
-                const updatedUser = this.mapDTOToUser(userDTO);
-                this.currentUserSubject.next(updatedUser);
+                const refreshed = this.mapDTOToUser(userDTO);
+                this._currentUser.set(refreshed);
+                this.loadPosts(); // Refresh posts in case name/avatar changed
             })
         );
     }
@@ -171,42 +274,31 @@ export class DataService {
     toggleSubscribe(): Observable<User> {
         return this.http.put<any>(`${this.API_URL}/users/me/subscribe`, {}).pipe(
             tap((userDTO: any) => {
-                const updatedUser = this.mapDTOToUser(userDTO);
-                this.currentUserSubject.next(updatedUser);
+                const refreshed = this.mapDTOToUser(userDTO);
+                this._currentUser.set(refreshed);
             })
         );
     }
 
     followUser(userId: number): Observable<void> {
         return this.http.post<void>(`${this.API_URL}/users/${userId}/follow`, {}).pipe(
-            tap(() => {
-                // Refresh current user profile to update following list
-                this.getProfile().subscribe();
-            })
+            tap(() => this.getProfile().subscribe())
         );
     }
 
-    // Search methods
     search(query: string, filter: string = 'all', limit: number = 10): Observable<any> {
         const params = { q: query, filter, limit: limit.toString() };
         return this.http.get<any>(`${this.API_URL}/search`, { params });
     }
 
-    // Dashboard methods
-    getDashboardStats(): Observable<any> {
-        return this.http.get<any>(`${this.API_URL}/dashboard/stats`);
+    // --- Getters (for non-signal based data or specific fetches) ---
+
+    getUserPosts(userId: number): Observable<Post[]> {
+        return this.http.get<Post[]>(`${this.API_URL}/posts/user/${userId}`);
     }
 
-    getReports(): Observable<any[]> {
-        return this.http.get<any[]>(`${this.API_URL}/reports`);
-    }
-
-    updateReportStatus(reportId: number, status: string): Observable<any> {
-        return this.http.put<any>(`${this.API_URL}/reports/${reportId}/status`, {}, { params: { status } });
-    }
-
-    reportContent(reason: string, reportedUserId?: number, reportedPostId?: number): Observable<any> {
-        return this.http.post<any>(`${this.API_URL}/reports`, { reason, reportedUserId, reportedPostId });
+    getPost(id: number): Observable<Post> {
+        return this.http.get<Post>(`${this.API_URL}/posts/${id}`);
     }
 
     private mapDTOToUser(dto: any): User {
@@ -229,12 +321,17 @@ export class DataService {
             isFollowing: dto.isFollowing,
             followersCount: dto.followersCount,
             followingCount: dto.followingCount,
+            banned: dto.banned,
             stats: {
-                posts: 0, // Should be calculated or returned from backend
+                posts: 0,
                 followers: dto.followersCount || 0,
                 following: dto.followingCount || 0
             }
         };
     }
 
+    // Helper for manual getCurrentUser if needed (though using signal is better)
+    getCurrentUser() {
+        return this._currentUser();
+    }
 }

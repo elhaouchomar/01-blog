@@ -22,60 +22,56 @@ export class Profile implements OnInit {
   posts: Post[] = [];
   isLoading = false;
   activeTab = 'Posts';
-  private previousModalState: string | null = null;
-
-  setTab(tab: string) {
-    this.activeTab = tab;
-    // Logic for switching content would go here
-    this.cdr.detectChanges();
-  }
 
   constructor(
-    private dataService: DataService,
-    protected modalService: ModalService,
+    public dataService: DataService,
+    public modalService: ModalService,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     private router: Router
   ) {
-    // Load user based on route parameter or current user
+    // Handle route changes
     this.route.params.subscribe(params => {
       const userId = params['id'];
       if (userId) {
-        // Load specific user profile
         this.loadUserProfile(parseInt(userId));
       } else {
-        // Load current user profile
-        this.dataService.currentUser$.subscribe(user => {
-          this.user = user;
-          if (this.user && this.user.id > 0) {
-            setTimeout(() => {
-              this.loadPosts();
-            }, 100);
-          }
-        });
+        // If on own profile, sync with currentUser signal
+        const cu = this.dataService.currentUser();
+        if (cu) {
+          this.user = cu;
+          this.loadPosts();
+          this.cdr.detectChanges();
+        }
       }
     });
 
-    // Reload posts when post-related modals close
+    // Sync with current user changes if on own profile
     effect(() => {
-      const currentModal = this.modalService.activeModal();
-      if (this.previousModalState && 
-          (this.previousModalState === 'create-post' || 
-           this.previousModalState === 'edit-post' || 
-           this.previousModalState === 'confirm-delete' ||
-           this.previousModalState === 'confirm-delete-post') &&
-          currentModal === null) {
-        // Modal was closed, reload posts
-        if (this.user && this.user.id) {
-          this.loadPosts();
-        }
+      const cu = this.dataService.currentUser();
+      const isOwn = !this.route.snapshot.params['id'];
+      if (isOwn && cu) {
+        this.user = cu;
+        this.loadPosts();
+        this.cdr.detectChanges();
       }
-      this.previousModalState = currentModal;
+    });
+
+    // Shared refresh logic for data signal changes
+    effect(() => {
+      const allPosts = this.dataService.posts();
+      if (this.user && this.user.id) {
+        // Reload this profile's post list when global posts signal changes (e.g. after adding a post)
+        this.loadPosts();
+      }
     });
   }
 
-  ngOnInit() {
-    // User loading is handled in constructor via route params
+  ngOnInit() { }
+
+  setTab(tab: string) {
+    this.activeTab = tab;
+    this.cdr.detectChanges();
   }
 
   loadUserProfile(userId: number) {
@@ -90,9 +86,7 @@ export class Profile implements OnInit {
       error: (err) => {
         console.error('Error loading user profile:', err);
         this.isLoading = false;
-        // Redirect to own profile if user not found
         this.router.navigate(['/profile']);
-        this.cdr.detectChanges();
       }
     });
   }
@@ -102,25 +96,19 @@ export class Profile implements OnInit {
   }
 
   get isOwnProfile(): boolean {
-    const currentUser = this.dataService.getCurrentUser();
-    return !!(currentUser && this.user && currentUser.id === this.user.id);
+    const cu = this.dataService.currentUser();
+    return !!(cu && this.user && cu.id === this.user.id);
   }
 
   loadPosts() {
     if (!this.user || !this.user.id) return;
 
-    this.isLoading = true;
     this.dataService.getUserPosts(this.user.id).subscribe({
       next: (posts) => {
         this.posts = posts;
-        this.isLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Error loading user posts:', err);
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }
+      error: (err) => console.error('Error loading user posts:', err)
     });
   }
 
@@ -136,7 +124,6 @@ export class Profile implements OnInit {
     if (this.user) {
       this.dataService.followUser(this.user.id).subscribe({
         next: () => {
-          // Reload user data to get updated counts and following state
           if (this.user) {
             this.loadUserProfile(this.user.id);
           }

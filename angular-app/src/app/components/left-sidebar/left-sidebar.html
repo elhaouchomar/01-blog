@@ -1,22 +1,22 @@
 <aside class="left-sidebar">
-    <div class="sidebar-card profile-card" *ngIf="currentUser && currentUser.id !== 0">
+    <div class="sidebar-card profile-card" *ngIf="dataService.currentUser() as user">
         <div class="profile-cover" data-alt="Blue abstract header background"></div>
         <div class="profile-info">
             <div class="profile-avatar-wrapper">
                 <div class="profile-avatar"
-                    [style.background-image]="'url(' + (currentUser.avatar || 'assets/default-avatar.png') + ')'">
+                    [style.background-image]="'url(' + (user.avatar || 'assets/default-avatar.png') + ')'">
                 </div>
             </div>
-            <a class="profile-name" routerLink="/profile">{{ currentUser.name }}</a>
-            <p class="profile-bio">{{ currentUser.bio || 'Welcome to my blog!' }}</p>
+            <a class="profile-name" routerLink="/profile">{{ user.name }}</a>
+            <p class="profile-bio">{{ user.bio || 'Welcome to my blog!' }}</p>
             <div class="profile-stats">
                 <div class="stat-item">
                     <span class="stat-label">Profile viewers</span>
-                    <span class="stat-value">{{ currentUser.stats?.viewers || 0 }}</span>
+                    <span class="stat-value">{{ user.stats?.viewers || 0 }}</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">Post impressions</span>
-                    <span class="stat-value">{{ currentUser.stats?.impressions || '0' }}</span>
+                    <span class="stat-value">{{ user.stats?.impressions || '0' }}</span>
                 </div>
             </div>
         </div>
@@ -24,7 +24,7 @@
 
     <div class="sidebar-card menu-card">
         <a class="menu-item" routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
-            *ngIf="currentUser && currentUser.id !== 0">
+            *ngIf="dataService.isLoggedIn()">
             <span class="material-symbols-outlined">home</span>
             <span class="menu-text">Home Feed</span>
         </a>
@@ -36,8 +36,7 @@
             <span class="material-symbols-outlined">notifications</span>
             <span class="menu-text">Notifications</span>
         </a>
-        <a class="menu-item" routerLink="/settings" routerLinkActive="active"
-            *ngIf="currentUser && currentUser.id !== 0">
+        <a class="menu-item" routerLink="/settings" routerLinkActive="active" *ngIf="dataService.isLoggedIn()">
             <span class="material-symbols-outlined">settings</span>
             <span class="menu-text">Settings</span>
         </a>

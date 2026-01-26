@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy, HostListener, ElementRef, effect } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,10 +30,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private searchSubject = new Subject<string>();
     private destroy$ = new Subject<void>();
 
-    // Notifications
-    notifications: any[] = [];
-    currentUser: any;
-
     constructor(
         public modalService: ModalService,
         public dataService: DataService,
@@ -47,6 +43,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
         ).subscribe((event: any) => {
             this.isNotificationRoute = event.urlAfterRedirects === '/notifications';
             this.cdr.detectChanges();
+        });
+
+        // Reactive effect for current user changes
+        effect(() => {
+            const user = this.dataService.currentUser();
+            if (user) {
+                // Any specific logic when user changes
+                this.cdr.detectChanges();
+            }
         });
     }
 
@@ -71,18 +76,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
                 this.isSearching = false;
                 this.cdr.detectChanges();
             }
-        });
-
-        if (localStorage.getItem('auth_token')) {
-            this.loadNotifications();
-        }
-
-        this.dataService.currentUser$.subscribe(user => {
-            this.currentUser = user;
-            if (user) {
-                this.loadNotifications();
-            }
-            this.cdr.detectChanges();
         });
     }
 
@@ -138,20 +131,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
         }
     }
 
-    loadNotifications() {
-        this.dataService.getNotifications().subscribe({
-            next: (data) => {
-                this.notifications = data;
-                this.cdr.detectChanges();
-            },
-            error: (err) => console.error('Error loading notifications', err)
-        });
-    }
-
-    get unreadCount(): number {
-        return this.notifications.filter(n => !n.isRead).length;
-    }
-
     handleNotificationClick(notification: any, event?: Event) {
         if (event) {
             event.stopPropagation();
@@ -159,9 +138,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
         // Mark as read first
         if (!notification.isRead) {
-            this.dataService.markAsRead(notification.id).subscribe(() => {
-                notification.isRead = true;
-            });
+            this.dataService.markAsRead(notification.id).subscribe();
         }
 
         // Navigate based on notification type
@@ -196,18 +173,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     markAllRead() {
-        this.dataService.markAllAsRead().subscribe(() => {
-            this.notifications.forEach(n => n.isRead = true);
-            this.cdr.detectChanges();
-        });
-    }
-
-    get isAdmin(): boolean {
-        return this.currentUser?.isAdmin || false;
-    }
-
-    get user(): any {
-        return this.currentUser;
+        this.dataService.markAllAsRead().subscribe();
     }
 
     toggleUserMenu() {
@@ -356,7 +322,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
                     type: 'post',
                     id: post.id,
                     title: post.title,
-                    author: post.author?.name || 'Unknown',
+                    author: post.user?.name || 'Unknown',
                     content: post.content?.substring(0, 100) + '...'
                 });
             });

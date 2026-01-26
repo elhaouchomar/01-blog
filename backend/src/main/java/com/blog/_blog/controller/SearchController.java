@@ -1,13 +1,10 @@
 package com.blog._blog.controller;
 
-import com.blog._blog.dto.PostDTO;
-import com.blog._blog.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController

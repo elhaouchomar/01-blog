@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataService } from '../../../services/data.service';
 import { RouterLink } from '@angular/router';
@@ -11,40 +11,33 @@ import { RouterLink } from '@angular/router';
     styleUrl: './overview.css',
 })
 export class DashboardOverview implements OnInit {
-    stats: any = {
-        totalUsers: 0,
-        totalPosts: 0,
-        totalReports: 0,
-        bannedUsers: 0,
-        pendingReports: 0,
-        activity: [],
-        mostReportedUsers: []
-    };
-    isLoading = true;
+    isLoading = computed(() => this.dataService.dashboardStats() === null);
 
-    constructor(private dataService: DataService) { }
+    constructor(public dataService: DataService) { }
 
     ngOnInit() {
-        this.loadStats();
+        // Initial load handled by DataService if not already loaded
+        if (!this.dataService.dashboardStats()) {
+            this.dataService.loadDashboardStats();
+        }
     }
 
-    loadStats() {
-        this.isLoading = true;
-        this.dataService.getDashboardStats().subscribe({
-            next: (data) => {
-                this.stats = data;
-                this.isLoading = false;
-            },
-            error: (err) => {
-                console.error('Error loading dashboard stats', err);
-                this.isLoading = false;
-            }
-        });
+    get stats() {
+        return this.dataService.dashboardStats() || {
+            totalUsers: 0,
+            totalPosts: 0,
+            totalReports: 0,
+            bannedUsers: 0,
+            pendingReports: 0,
+            activity: [],
+            mostReportedUsers: []
+        };
     }
 
     getActivityPercentage(count: number): number {
-        if (!this.stats.activity || this.stats.activity.length === 0) return 0;
-        const max = Math.max(...this.stats.activity.map((a: any) => a.count));
+        const activity = this.stats.activity;
+        if (!activity || activity.length === 0) return 0;
+        const max = Math.max(...activity.map((a: any) => a.count));
         return max > 0 ? (count / max) * 100 : 0;
     }
 }

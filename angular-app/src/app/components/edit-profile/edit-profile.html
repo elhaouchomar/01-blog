@@ -1,0 +1,77 @@
+<div class="modal-overlay" (click)="close()">
+    <div class="modal-container premium-modal edit-profile-container" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2 class="modal-title">Edit User Profile</h2>
+            <button class="modal-close-btn" (click)="close()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div class="modal-content custom-scrollbar">
+            <div class="user-id-card premium-card-light"
+                style="display: flex; align-items: center; gap: 1.25rem; padding: 1.25rem; border-radius: 1.25rem; margin-bottom: 2rem; border: 1px solid var(--gray-100);">
+                <div class="avatar-squircle"
+                    [style.background-image]="'url(' + (user?.avatar || 'assets/default-avatar.png') + ')'"
+                    style="width: 4.5rem; height: 4.5rem; border-radius: 1.25rem; background-size: cover; background-position: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                </div>
+                <div class="info">
+                    <p class="name" style="font-size: 1.125rem; font-weight: 800; color: var(--text-main);">{{
+                        user?.name }}</p>
+                    <p class="email" style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">{{
+                        user?.email }}</p>
+                </div>
+            </div>
+
+            <form (submit)="save()" class="premium-form">
+                <div class="name-grid-premium" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group-premium">
+                        <label class="premium-label">First Name</label>
+                        <input type="text" [(ngModel)]="form.firstname" name="firstname" class="premium-input" required>
+                    </div>
+                    <div class="form-group-premium">
+                        <label class="premium-label">Last Name</label>
+                        <input type="text" [(ngModel)]="form.lastname" name="lastname" class="premium-input" required>
+                    </div>
+                </div>
+
+                <div class="form-group-premium">
+                    <label class="premium-label">Assigned Role</label>
+                    <select [(ngModel)]="form.role" name="role" class="premium-select">
+                        <option value="USER">User</option>
+                        <option value="ADMIN">Lead Administrator</option>
+                    </select>
+                </div>
+
+                <div class="form-group-premium">
+                    <label class="premium-label">Professional Bio</label>
+                    <textarea [(ngModel)]="form.bio" name="bio" class="premium-input"
+                        style="min-height: 6rem; resize: vertical;" placeholder="Add a short bio..."></textarea>
+                </div>
+
+                <div class="moderation-controls"
+                    style="margin-top: 2rem; padding: 1.5rem; background: #fef2f2; border-radius: 1.25rem; border: 1.5px solid #fee2e2;">
+                    <label class="checkbox-label-premium"
+                        style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                        <input type="checkbox" [(ngModel)]="form.banned" name="banned"
+                            style="width: 1.25rem; height: 1.25rem; accent-color: #ef4444;">
+                        <div class="label-text">
+                            <span
+                                style="display: block; font-weight: 800; color: #dc2626; font-size: 0.875rem;">Restrict
+                                Platform Access</span>
+                            <span style="font-size: 0.75rem; color: #ef4444; font-weight: 600;">Suspends user ability to
+                                login or post</span>
+                        </div>
+                    </label>
+                </div>
+            </form>
+        </div>
+
+        <div class="modal-footer premium-footer">
+            <button type="button" class="btn-cancel-premium" (click)="close()">Cancel</button>
+            <button type="submit" class="btn-publish-premium" (click)="save()">
+                <span>Save Profile</span>
+                <span class="material-symbols-outlined">save</span>
+            </button>
+        </div>
+    </div>
+</div>

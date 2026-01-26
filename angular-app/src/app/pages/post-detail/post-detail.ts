@@ -1,5 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../services/data.service';
@@ -26,12 +26,9 @@ export class PostDetail implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private dataService: DataService
-    ) {
-        this.dataService.currentUser$.subscribe(user => {
-            this.currentUser = user;
-        });
-    }
+        public dataService: DataService,
+        private _location: Location
+    ) { }
 
     ngOnInit() {
         const postId = this.route.snapshot.paramMap.get('id');
@@ -98,6 +95,6 @@ export class PostDetail implements OnInit {
     }
 
     goBack() {
-        this.router.navigate(['/home']);
+        this._location.back();
     }
 }

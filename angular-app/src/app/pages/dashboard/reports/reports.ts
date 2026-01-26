@@ -1,44 +1,37 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { DataService } from '../../../services/data.service';
+import { ModalService } from '../../../services/modal.service';
 
 @Component({
     selector: 'app-dashboard-reports',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, RouterModule],
     templateUrl: './reports.html',
     styleUrl: './reports.css',
 })
 export class Reports implements OnInit {
-    reports: any[] = [];
-    isLoading = true;
+    isLoading = computed(() => this.dataService.reports().length === 0 && !this.dataService.dashboardStats());
 
-    constructor(private dataService: DataService) { }
+    constructor(public dataService: DataService, private modalService: ModalService) { }
 
     ngOnInit() {
-        this.loadReports();
-    }
-
-    loadReports() {
-        this.isLoading = true;
-        this.dataService.getReports().subscribe({
-            next: (data) => {
-                this.reports = data;
-                this.isLoading = false;
-            },
-            error: (err) => {
-                console.error('Error loading reports', err);
-                this.isLoading = false;
-            }
-        });
+        if (this.dataService.reports().length === 0) {
+            this.dataService.loadReports();
+        }
     }
 
     updateStatus(report: any, status: string) {
-        this.dataService.updateReportStatus(report.id, status).subscribe({
-            next: () => {
-                report.status = status;
+        this.dataService.updateReportStatus(report.id, status).subscribe();
+    }
+
+    viewPost(postId: number) {
+        this.dataService.getPost(postId).subscribe({
+            next: (post) => {
+                this.modalService.open('post-details', post);
             },
-            error: (err) => console.error('Error updating report status', err)
+            error: (err) => console.error('Error loading post:', err)
         });
     }
 
@@ -53,6 +46,6 @@ export class Reports implements OnInit {
     }
 
     formatStatus(status: string): string {
-        return status.replace(/_/g, ' ');
+        return status?.replace(/_/g, ' ') || '';
     }
 }

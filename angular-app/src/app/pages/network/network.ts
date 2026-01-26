@@ -34,7 +34,7 @@ export class Network implements OnInit {
     loadUsers() {
         this.dataService.getUsers().subscribe({
             next: (data: User[]) => {
-                const currentUser = this.dataService.getCurrentUser();
+                const currentUser = this.dataService.currentUser();
                 this.users = data.filter(user => user.id !== currentUser?.id && !user.isFollowing);
                 this.cdr.detectChanges();
             },
@@ -46,7 +46,7 @@ export class Network implements OnInit {
         // Update locally for immediate UI feedback
         user.isFollowing = true;
         this.cdr.detectChanges();
-        
+
         this.dataService.followUser(user.id).subscribe({
             next: () => {
                 // Successfully subscribed

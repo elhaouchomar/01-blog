@@ -80,6 +80,61 @@ public class UserService {
         userRepository.save(follower);
     }
 
+    @Transactional(readOnly = true)
+    public UserDTO getUserById(Integer id, String currentUserEmail) {
+        User targetUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        User currentUser = currentUserEmail != null ? userRepository.findByEmail(currentUserEmail).orElse(null) : null;
+        return convertToDTO(targetUser, currentUser);
+    }
+
+    @Transactional(readOnly = true)
+    public UserDTO getCurrentUser(String email) {
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return convertToDTO(currentUser, currentUser);
+    }
+
+    @Transactional
+    public void deleteUser(Integer id, String requesterEmail) {
+        User requester = userRepository.findByEmail(requesterEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (requester.getRole() != com.blog._blog.entity.Role.ADMIN) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        if (requester.getId().equals(id)) {
+            throw new RuntimeException("Cannot delete yourself");
+        }
+
+        User userToDelete = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        userRepository.delete(userToDelete);
+    }
+
+    @Transactional
+    public UserDTO toggleBan(Integer id, String requesterEmail) {
+        User requester = userRepository.findByEmail(requesterEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (requester.getRole() != com.blog._blog.entity.Role.ADMIN) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        if (requester.getId().equals(id)) {
+            throw new RuntimeException("Cannot ban yourself");
+        }
+
+        User userToBan = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        userToBan.setBanned(!Boolean.TRUE.equals(userToBan.getBanned()));
+        User saved = userRepository.save(userToBan);
+        return convertToDTO(saved, requester);
+    }
+
     public UserDTO convertToDTO(User user, User currentUser) {
         return UserDTO.builder()
                 .id(user.getId())
@@ -94,10 +149,11 @@ public class UserService {
                 .cover(user.getCover())
                 .bio(user.getBio())
                 .createdAt(user.getCreatedAt())
-                .subscribed(user.getSubscribed())
+                .subscribed(Boolean.TRUE.equals(user.getSubscribed()))
                 .isFollowing(currentUser != null && currentUser.getFollowing().contains(user))
-                .followersCount(user.getFollowers().size())
-                .followingCount(user.getFollowing().size())
+                .followersCount(user.getFollowers() != null ? user.getFollowers().size() : 0)
+                .followingCount(user.getFollowing() != null ? user.getFollowing().size() : 0)
+                .banned(Boolean.TRUE.equals(user.getBanned()))
                 .build();
     }
 }

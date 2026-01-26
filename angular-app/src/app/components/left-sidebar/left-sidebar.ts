@@ -12,16 +12,7 @@ import { User } from '../../models/data.models';
     styleUrl: './left-sidebar.css'
 })
 export class SidebarComponent implements OnInit {
-    currentUser: User | null = null;
+    constructor(public dataService: DataService) { }
 
-    constructor(private dataService: DataService) {
-        this.currentUser = this.dataService.getCurrentUser();
-        this.dataService.currentUser$.subscribe(user => {
-            this.currentUser = user;
-        });
-    }
-
-    ngOnInit() {
-        // In a real app, we might subscribe to user updates here
-    }
+    ngOnInit() { }
 }

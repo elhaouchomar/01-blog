@@ -2,118 +2,98 @@
     <app-navbar></app-navbar>
 
     <div class="content-wrapper" *ngIf="post() as currentPost">
-        <!-- Sidebar -->
         <app-sidebar class="sidebar"></app-sidebar>
 
-        <!-- Main Feed -->
         <main class="main-feed">
-            <!-- Back Button -->
-            <div class="back-button-wrapper" style="margin-bottom: 1rem;">
-                <button type="button" class="back-button" (click)="goBack()"
-                    style="display: flex; align-items: center; gap: 0.5rem; background: none; border: none; cursor: pointer; color: var(--primary); font-weight: 600;">
+            <div class="back-nav">
+                <button type="button" class="btn-back-premium" (click)="goBack()">
                     <span class="material-symbols-outlined">arrow_back</span>
-                    <span>Back</span>
+                    <span>Back to feed</span>
                 </button>
             </div>
 
-            <article class="post-card">
-                <!-- Post Header -->
-                <div class="post-header">
-                    <div class="post-author">
-                        <div class="post-avatar"
+            <article class="post-detail-card">
+                <div class="post-header-premium">
+                    <div class="post-author-row">
+                        <div class="post-avatar-large"
                             [style.background-image]="'url(' + (currentPost.user.avatar || 'assets/default-avatar.png') + ')'">
                         </div>
-                        <div class="post-author-info">
-                            <div class="author-row">
-                                <a [routerLink]="['/profile', currentPost.user.id]" class="post-author-name">{{
-                                    currentPost.user.name }}</a>
-                                <span class="post-author-handle">{{ currentPost.user.handle }}</span>
-                            </div>
-                            <p class="post-meta">{{ currentPost.user.role || 'User' }} • {{ (currentPost.createdAt ||
-                                currentPost.time) | date:'short' }}</p>
+                        <div class="post-author-meta">
+                            <a [routerLink]="['/profile', currentPost.user.id]" class="author-name-link">{{
+                                currentPost.user.name }}</a>
+                            <p class="post-timestamp">{{ currentPost.user.role || 'Member' }} • {{
+                                (currentPost.createdAt || currentPost.time) | date:'medium' }}</p>
                         </div>
                     </div>
+                    <button class="btn-more">
+                        <span class="material-symbols-outlined">more_horiz</span>
+                    </button>
                 </div>
 
-                <!-- Post Content -->
-                <div class="post-content">
-                    <h1 class="post-title" *ngIf="currentPost.title" style="font-size: 1.5rem; margin: 1rem 0;">{{
-                        currentPost.title }}</h1>
-                    <p class="post-text">{{ currentPost.fullContent || currentPost.content }}</p>
+                <div class="post-body-premium">
+                    <h1 class="post-full-title" *ngIf="currentPost.title">{{ currentPost.title }}</h1>
+                    <div class="post-full-text">{{ currentPost.fullContent || currentPost.content }}</div>
                 </div>
 
-                <!-- Media Content -->
-                <div class="post-media"
-                    *ngIf="(currentPost.images && currentPost.images.length > 0) || currentPost.video"
-                    style="margin-top: 1rem;">
-                    <div *ngFor="let mediaUrl of currentPost.images" style="margin-bottom: 0.5rem;">
-                        <img [src]="mediaUrl" style="width: 100%; border-radius: 0.75rem; object-fit: cover;"
-                            alt="Post media">
+                <div class="post-media-grid" *ngIf="(currentPost.images && currentPost.images.length > 0)">
+                    <div *ngFor="let mediaUrl of currentPost.images" class="media-item-full">
+                        <img [src]="mediaUrl" alt="Post content" class="img-responsive">
                     </div>
                 </div>
 
-                <!-- Actions -->
-                <div class="post-actions"
-                    style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--gray-100);">
-                    <div class="post-action-group" style="display: flex; gap: 1.5rem;">
-                        <button type="button" class="post-action-btn" [class.liked]="currentPost.isLiked"
-                            (click)="toggleLike()"
-                            style="display: flex; align-items: center; gap: 0.5rem; background: none; border: none; cursor: pointer; color: var(--text-secondary);">
-                            <span class="material-symbols-outlined" [class.filled]="currentPost.isLiked">favorite</span>
-                            <span>{{ currentPost.likes }}</span>
-                        </button>
-                    </div>
+                <div class="post-footer-actions">
+                    <button type="button" class="action-btn-large" [class.active]="currentPost.isLiked"
+                        (click)="toggleLike()">
+                        <span class="material-symbols-outlined" [class.filled]="currentPost.isLiked">favorite</span>
+                        <span class="count-label">{{ currentPost.likes }} Likes</span>
+                    </button>
+                    <button type="button" class="action-btn-large">
+                        <span class="material-symbols-outlined">share</span>
+                        <span class="count-label">Share</span>
+                    </button>
                 </div>
             </article>
 
-            <!-- Comments Section -->
-            <div class="comments-section"
-                style="margin-top: 1.5rem; background: var(--surface-light); padding: 1.5rem; border-radius: 0.75rem; border: 1px solid var(--gray-100);">
-                <h2 class="comments-title" style="font-size: 1.1rem; margin-bottom: 1.5rem;">Comments ({{
-                    comments().length }})</h2>
+            <section class="comments-section-premium">
+                <div class="section-heading">
+                    <h3>Discussion <span>({{ comments().length }})</span></h3>
+                </div>
 
-                <!-- Comment Input -->
-                <div class="comment-input-container" *ngIf="currentUser"
-                    style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-                    <div class="comment-avatar"
-                        [style.background-image]="'url(' + (currentUser.avatar || 'assets/default-avatar.png') + ')'"
-                        style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background-size: cover; flex-shrink: 0;">
+                <div class="comment-input-area" *ngIf="dataService.currentUser()">
+                    <div class="user-avatar-mini"
+                        [style.background-image]="'url(' + (dataService.currentUser()?.avatar || 'assets/default-avatar.png') + ')'">
                     </div>
-                    <div class="comment-input-wrapper" style="flex: 1;">
-                        <textarea [(ngModel)]="commentText" placeholder="Write a comment..." class="input-field"
-                            rows="3" style="width: 100%; margin-bottom: 0.5rem; resize: none;"></textarea>
-                        <button type="button" class="btn btn-primary" (click)="submitComment()"
-                            [disabled]="!commentText.trim()">Comment</button>
+                    <div class="input-container-premium">
+                        <textarea [(ngModel)]="commentText" placeholder="Join the discussion..." rows="3"></textarea>
+                        <div class="input-actions-premium">
+                            <button type="button" class="btn-submit-premium" (click)="submitComment()"
+                                [disabled]="!commentText.trim()">Post Comment</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="comments-list">
-                    <div class="comment-item" *ngFor="let comment of comments()"
-                        style="margin-bottom: 1.5rem; display: flex; gap: 1rem;">
-                        <div class="comment-avatar"
-                            [style.background-image]="'url(' + (comment.user.avatar || 'assets/default-avatar.png') + ')'"
-                            style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background-size: cover; flex-shrink: 0;">
+                <div class="comments-list-premium">
+                    <div class="comment-item-premium" *ngFor="let comment of comments()">
+                        <div class="comment-avatar-mini"
+                            [style.background-image]="'url(' + (comment.user.avatar || 'assets/default-avatar.png') + ')'">
                         </div>
-                        <div class="comment-content">
-                            <div class="comment-header" style="margin-bottom: 0.25rem;">
-                                <span style="font-weight: 700; font-size: 0.875rem;">{{ comment.user.name }}</span>
-                                <span style="color: var(--text-secondary); font-size: 0.75rem; margin-left: 0.5rem;">{{
-                                    comment.time }}</span>
+                        <div class="comment-content-main">
+                            <div class="comment-user-row">
+                                <span class="comment-username">{{ comment.user.name }}</span>
+                                <span class="comment-date">{{ comment.time }}</span>
                             </div>
-                            <p style="font-size: 0.875rem; line-height: 1.5;">{{ comment.content }}</p>
+                            <p class="comment-body">{{ comment.content }}</p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </main>
 
-        <!-- Right Side -->
-        <aside class="sidebar">
-            <app-right-sidebar></app-right-sidebar>
-        </aside>
+        <app-right-sidebar class="sidebar"></app-right-sidebar>
     </div>
 
-    <div class="loading-container" *ngIf="!post()" style="text-align: center; padding: 4rem;">
-        <p>Loading post details...</p>
+    <div class="loading-full-page" *ngIf="!post()">
+        <div class="shimmer-post"></div>
+        <p>Enhancing details...</p>
     </div>
 </div>

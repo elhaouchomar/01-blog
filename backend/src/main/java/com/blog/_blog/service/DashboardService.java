@@ -19,45 +19,53 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DashboardService {
 
-    private final UserRepository userRepository;
-    private final PostRepository postRepository;
-    private final ReportRepository reportRepository;
+        private final UserRepository userRepository;
+        private final PostRepository postRepository;
+        private final ReportRepository reportRepository;
 
-    public DashboardStatsDTO getDashboardStats() {
-        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        public DashboardStatsDTO getDashboardStats(String requesterEmail) {
+                User requester = userRepository.findByEmail(requesterEmail)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<PlatformActivityDTO> activity = postRepository.findPostActivity(thirtyDaysAgo)
-                .stream()
-                .map(obj -> PlatformActivityDTO.builder()
-                        .date(obj[0].toString())
-                        .count(((Number) obj[1]).longValue())
-                        .build())
-                .collect(Collectors.toList());
+                if (requester.getRole() != com.blog._blog.entity.Role.ADMIN) {
+                        throw new RuntimeException("Unauthorized");
+                }
 
-        List<ReportedUserDTO> mostReportedUsers = reportRepository.findMostReportedUsers()
-                .stream()
-                .limit(5)
-                .map(obj -> {
-                    User user = (User) obj[0];
-                    return ReportedUserDTO.builder()
-                            .id(user.getId())
-                            .name(user.getFirstname() + " " + user.getLastname())
-                            .username(user.getEmail().split("@")[0])
-                            .avatar(user.getAvatar())
-                            .reportCount(((Number) obj[1]).longValue())
-                            .status(user.getBanned() ? "Banned" : "Active")
-                            .build();
-                })
-                .collect(Collectors.toList());
+                LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
 
-        return DashboardStatsDTO.builder()
-                .totalUsers(userRepository.count())
-                .totalPosts(postRepository.count())
-                .totalReports(reportRepository.count())
-                .bannedUsers(userRepository.countByBanned(true))
-                .pendingReports(reportRepository.countByStatus(Report.ReportStatus.PENDING))
-                .activity(activity)
-                .mostReportedUsers(mostReportedUsers)
-                .build();
-    }
+                List<PlatformActivityDTO> activity = postRepository.findPostActivity(thirtyDaysAgo)
+                                .stream()
+                                .map(obj -> PlatformActivityDTO.builder()
+                                                .date(obj[0].toString())
+                                                .count(((Number) obj[1]).longValue())
+                                                .build())
+                                .collect(Collectors.toList());
+
+                List<ReportedUserDTO> mostReportedUsers = reportRepository.findMostReportedUsers()
+                                .stream()
+                                .limit(5)
+                                .map(obj -> {
+                                        User user = (User) obj[0];
+                                        return ReportedUserDTO.builder()
+                                                        .id(user.getId())
+                                                        .name(user.getFirstname() + " " + user.getLastname())
+                                                        .username(user.getEmail().split("@")[0])
+                                                        .avatar(user.getAvatar())
+                                                        .reportCount(((Number) obj[1]).longValue())
+                                                        .status(Boolean.TRUE.equals(user.getBanned()) ? "Banned"
+                                                                        : "Active")
+                                                        .build();
+                                })
+                                .collect(Collectors.toList());
+
+                return DashboardStatsDTO.builder()
+                                .totalUsers(userRepository.count())
+                                .totalPosts(postRepository.count())
+                                .totalReports(reportRepository.count())
+                                .bannedUsers(userRepository.countByBanned(true))
+                                .pendingReports(reportRepository.countByStatus(Report.ReportStatus.PENDING))
+                                .activity(activity)
+                                .mostReportedUsers(mostReportedUsers)
+                                .build();
+        }
 }

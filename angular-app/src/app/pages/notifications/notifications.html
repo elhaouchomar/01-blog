@@ -18,27 +18,28 @@
             </div>
 
             <div class="filter-bar">
-                <button class="filter-btn" [class.active]="activeFilter === 'All'" (click)="setFilter('All')">
+                <button class="filter-btn" [class.active]="activeFilter() === 'All'" (click)="setFilter('All')">
                     All
                 </button>
-                <button class="filter-btn" [class.active]="activeFilter === 'Unread'" (click)="setFilter('Unread')">
+                <button class="filter-btn" [class.active]="activeFilter() === 'Unread'" (click)="setFilter('Unread')">
                     Unread
                     <span class="filter-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
                 </button>
-                <button class="filter-btn" [class.active]="activeFilter === 'Comments'"
+                <button class="filter-btn" [class.active]="activeFilter() === 'Comments'"
                     (click)="setFilter('Comments')">Comments</button>
-                <button class="filter-btn" [class.active]="activeFilter === 'Likes'"
+                <button class="filter-btn" [class.active]="activeFilter() === 'Likes'"
                     (click)="setFilter('Likes')">Likes</button>
-                <button class="filter-btn" [class.active]="activeFilter === 'Follows'"
+                <button class="filter-btn" [class.active]="activeFilter() === 'Follows'"
                     (click)="setFilter('Follows')">Follows</button>
-                <button class="filter-btn" [class.active]="activeFilter === 'Events'"
+                <button class="filter-btn" [class.active]="activeFilter() === 'Events'"
                     (click)="setFilter('Events')">Events</button>
             </div>
 
             <!-- Notification List -->
             <div class="notification-list">
-                <div *ngFor="let notification of filteredNotifications" (click)="handleNotificationClick(notification)"
-                    class="notification-item" [class.unread]="!notification.isRead">
+                <div *ngFor="let notification of filteredNotifications()"
+                    (click)="handleNotificationClick(notification)" class="notification-item"
+                    [class.unread]="!notification.isRead">
 
                     <!-- Avatar & Icon -->
                     <div class="notification-avatar-container">
@@ -68,10 +69,9 @@
                     <!-- Content -->
                     <div class="notification-content">
                         <div class="notification-top-row">
-                            <a class="notification-user-name" 
-                               (click)="handleActorClick(notification, $event)"
-                               [routerLink]="['/profile', notification.actorId]"
-                               style="cursor: pointer; text-decoration: none; color: inherit; font-weight: 600;">
+                            <a class="notification-user-name" (click)="handleActorClick(notification, $event)"
+                                [routerLink]="['/profile', notification.actorId]"
+                                style="cursor: pointer; text-decoration: none; color: inherit; font-weight: 600;">
                                 {{ notification.actorName }}
                             </a>
                             <span class="notification-time">{{ notification.createdAt | date:'short' }}</span>
@@ -84,7 +84,7 @@
                 </div>
 
                 <!-- Empty State -->
-                <div class="notifications-empty" *ngIf="filteredNotifications.length === 0">
+                <div class="notifications-empty" *ngIf="filteredNotifications().length === 0">
                     <div class="empty-icon-wrapper">
                         <span class="material-symbols-outlined icon-large">notifications_off</span>
                     </div>

@@ -1,8 +1,8 @@
 <div class="modal-overlay" (click)="close()">
-    <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-container premium-modal report-modal-container" (click)="$event.stopPropagation()">
         <!-- Header -->
         <div class="modal-header">
-            <h2 class="modal-title">{{ title }}</h2>
+            <h2 class="modal-title">Flag Content</h2>
             <button class="modal-close-btn" (click)="close()">
                 <span class="material-symbols-outlined">close</span>
             </button>
@@ -11,46 +11,37 @@
         <!-- Content -->
         <div class="modal-content custom-scrollbar">
             <!-- Description -->
-            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-                Help us keep 01Blog safe and educational. Please describe why this content violates our community
-                guidelines.
+            <p class="modal-instruction"
+                style="font-size: 0.9375rem; color: var(--text-secondary); margin-bottom: 2rem; font-weight: 500; line-height: 1.6;">
+                Help us keep 01Blog safe. Please select a reason why this content violates our community guidelines.
             </p>
 
             <!-- Target Info Card -->
-            <div
-                style="display: flex; align-items: start; gap: 1rem; padding: 1rem; background-color: var(--gray-50); border-radius: 0.75rem; border: 1px solid var(--gray-200); margin-bottom: 1.5rem;">
-                <div
-                    style="height: 2.5rem; width: 2.5rem; min-width: 2.5rem; border-radius: 9999px; background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.875rem;">
-                    {{ targetAuthor.substring(1, 3).toUpperCase() }}
+            <div class="report-target-card premium-card-light"
+                style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 1rem; background: var(--gray-50); margin-bottom: 2rem; border: 1px solid var(--gray-100);">
+                <div class="target-icon"
+                    style="width: 2.5rem; height: 2.5rem; background: var(--primary); color: white; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center;">
+                    <span class="material-symbols-outlined">{{ type === 'user' ? 'person' : 'article' }}</span>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                <div class="target-meta">
                     <span
-                        style="font-size: 0.75rem; font-weight: 600; color: var(--gray-500); text-transform: uppercase;">
-                        {{ reportingLabel }}
-                    </span>
-                    <h4
-                        style="font-size: 0.875rem; font-weight: 500; color: var(--text-main); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        {{ targetName }}
-                    </h4>
-                    <span style="font-size: 0.75rem; color: var(--gray-500);">by {{ targetAuthor }}</span>
+                        style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-secondary);">Reporting
+                        {{ type }}</span>
+                    <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-main);">{{ targetName }}</h4>
                 </div>
             </div>
 
             <!-- Reason Selection -->
-            <div style="margin-bottom: 1.5rem;">
-                <label
-                    style="display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.75rem;">
-                    Reason for reporting
-                </label>
-                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+            <div class="form-group-premium">
+                <label class="premium-label">Nature of violations</label>
+                <div class="reason-grid-premium"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem;">
                     <label *ngFor="let reason of ['spam', 'harassment', 'misinformation', 'plagiarism', 'other']"
-                        style="position: relative; cursor: pointer;">
+                        class="fancy-chip-label" style="cursor: pointer;">
                         <input type="radio" name="report_reason" [value]="reason" [(ngModel)]="selectedReason"
-                            style="position: absolute; opacity: 0;" />
-                        <div [style.border-color]="selectedReason === reason ? 'var(--primary)' : 'var(--gray-200)'"
-                            [style.background-color]="selectedReason === reason ? 'rgba(19, 19, 236, 0.05)' : 'white'"
-                            [style.color]="selectedReason === reason ? 'var(--primary)' : 'var(--gray-700)'"
-                            style="padding: 0.5rem 1rem; border-radius: 0.5rem; border-width: 1px; border-style: solid; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; text-transform: capitalize;">
+                            style="display: none;">
+                        <div class="chip-box" [class.selected]="selectedReason === reason"
+                            style="padding: 0.75rem; border-radius: 0.875rem; border: 1.5px solid var(--gray-200); text-align: center; font-size: 0.875rem; font-weight: 700; transition: all 0.2s; text-transform: capitalize;">
                             {{ reason }}
                         </div>
                     </label>
@@ -58,21 +49,21 @@
             </div>
 
             <!-- Details Textarea -->
-            <div class="form-group">
-                <label class="form-label">Additional Details</label>
-                <textarea [(ngModel)]="details" name="details" class="textarea-field" rows="5"
-                    placeholder="Please provide specific context, links, or timestamps to help us understand the issue..."></textarea>
+            <div class="form-group-premium" style="margin-top: 2rem;">
+                <label class="premium-label">Detailed context</label>
+                <textarea [(ngModel)]="details" name="details" class="premium-input" rows="4"
+                    style="min-height: 8rem; margin-top: 0.5rem; resize: vertical;"
+                    placeholder="Provide specific details to help our moderation team..."></textarea>
             </div>
         </div>
 
         <!-- Footer -->
-        <div class="modal-footer">
-            <button class="btn btn-secondary" (click)="close()">
-                Cancel
-            </button>
-            <button class="btn btn-primary" (click)="submitReport()">
-                <span class="material-symbols-outlined" style="font-size: 18px;">flag</span>
-                Submit Report
+        <div class="modal-footer premium-footer">
+            <button class="btn-cancel-premium" (click)="close()">Cancel</button>
+            <button class="btn-publish-premium" style="background: var(--text-main);" (click)="submitReport()"
+                [disabled]="!selectedReason">
+                <span>Submit Report</span>
+                <span class="material-symbols-outlined">flag</span>
             </button>
         </div>
     </div>

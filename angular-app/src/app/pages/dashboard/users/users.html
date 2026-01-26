@@ -19,18 +19,19 @@
 <div class="filters-bar">
     <div class="search-box">
         <span class="material-symbols-outlined">search</span>
-        <input type="text" placeholder="Search by name, email or role..." [(ngModel)]="searchQuery"
-            (input)="onSearch()">
+        <input type="text" placeholder="Search by name, email or role..." [ngModel]="searchQuery()"
+            (input)="onSearch($event)">
     </div>
     <div class="status-chips">
         <span class="label">Status:</span>
-        <button class="chip" [class.active]="statusFilter === 'all'" (click)="setStatusFilter('all')">All Users</button>
-        <button class="chip" [class.active]="statusFilter === 'active'"
+        <button class="chip" [class.active]="statusFilter() === 'all'" (click)="setStatusFilter('all')">All
+            Users</button>
+        <button class="chip" [class.active]="statusFilter() === 'active'"
             (click)="setStatusFilter('active')">Active</button>
-        <button class="chip" [class.active]="statusFilter === 'banned'"
+        <button class="chip" [class.active]="statusFilter() === 'banned'"
             (click)="setStatusFilter('banned')">Banned</button>
-        <button class="chip" [class.active]="statusFilter === 'moderators'"
-            (click)="setStatusFilter('moderators')">Moderators</button>
+        <button class="chip" [class.active]="statusFilter() === 'admins'"
+            (click)="setStatusFilter('admins')">Admins</button>
     </div>
 </div>
 
@@ -48,21 +49,22 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let user of filteredUsers" [class.row-banned]="user.banned">
+                <tr *ngFor="let user of paginatedUsers()" [class.row-banned]="user.banned">
                     <td><input type="checkbox"></td>
                     <td>
-                        <div class="user-cell">
+                        <a [routerLink]="['/profile', user.id]" class="user-cell"
+                            style="text-decoration: none; display: flex; align-items: center; gap: 0.75rem;">
                             <div class="user-avatar"
                                 [style.background-image]="'url(' + (user.avatar || 'assets/default-avatar.png') + ')'">
                             </div>
                             <div class="user-info">
-                                <p class="user-name">{{ user.name }}</p>
+                                <p class="user-name" style="color: var(--text-main);">{{ user.name }}</p>
                                 <p class="user-email">{{ user.email }}</p>
                             </div>
-                        </div>
+                        </a>
                     </td>
                     <td>
-                        <span class="role-badge" [class]="user.role.toLowerCase()">
+                        <span class="role-badge" [class]="user.role?.toLowerCase()">
                             {{ user.role }}
                         </span>
                     </td>
@@ -89,10 +91,10 @@
                         </div>
                     </td>
                 </tr>
-                <tr *ngIf="filteredUsers.length === 0 && !isLoading">
+                <tr *ngIf="filteredUsers().length === 0 && !isLoading()">
                     <td colspan="6" class="empty-cell">No users found matching your filters</td>
                 </tr>
-                <tr *ngIf="isLoading">
+                <tr *ngIf="isLoading()">
                     <td colspan="6" class="loading-cell">Loading users...</td>
                 </tr>
             </tbody>
@@ -100,10 +102,17 @@
     </div>
 
     <div class="table-footer">
-        <p class="stats">Showing {{ filteredUsers.length }} of {{ users.length }} users</p>
+        <p class="stats">Showing {{ getPageStart() }} - {{ getPageEnd() }} of {{ filteredUsers().length }} users</p>
         <div class="pagination">
-            <button class="btn-pager" disabled>Previous</button>
-            <button class="btn-pager">Next</button>
+            <button class="btn-pager" [disabled]="currentPage() === 1" (click)="previousPage()">
+                <span class="material-symbols-outlined">chevron_left</span>
+                Previous
+            </button>
+            <span class="page-indicator">Page {{ currentPage() }} of {{ totalPages() }}</span>
+            <button class="btn-pager" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+                Next
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
         </div>
     </div>
 </div>

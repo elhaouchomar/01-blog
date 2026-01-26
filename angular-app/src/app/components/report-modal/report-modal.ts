@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModalService } from '../../services/modal.service';
+import { DataService } from '../../services/data.service';
 
 export type ReportType = 'post' | 'user';
 
@@ -18,27 +19,21 @@ export class ReportModal {
     selectedReason = 'other';
     details = '';
 
-    constructor(protected modalService: ModalService) { }
+    constructor(
+        protected modalService: ModalService,
+        private dataService: DataService
+    ) { }
 
     get title(): string {
-        return this.type === 'post' ? 'Report Issue' : 'Report User';
-    }
-
-    get reportingLabel(): string {
-        return this.type === 'post' ? 'Reporting Post' : 'Reporting';
+        return this.type === 'post' ? 'Report Post' : 'Report User';
     }
 
     get targetName(): string {
         const data = this.modalService.modalData();
         if (this.type === 'post') {
-            return data?.title || 'Unknown Post';
+            return data?.title || 'this post';
         }
-        return data?.handle || '@unknown';
-    }
-
-    get targetAuthor(): string {
-        const data = this.modalService.modalData();
-        return data?.user?.handle || data?.handle || '@unknown';
+        return data?.name || 'this user';
     }
 
     close() {
@@ -46,11 +41,20 @@ export class ReportModal {
     }
 
     submitReport() {
-        console.log('Report submitted:', {
-            type: this.type,
-            reason: this.selectedReason,
-            details: this.details
+        const data = this.modalService.modalData();
+        const reason = this.selectedReason + (this.details ? ': ' + this.details : '');
+
+        const reportedUserId = this.type === 'user' ? data.id : data.user?.id;
+        const reportedPostId = this.type === 'post' ? data.id : null;
+
+        this.dataService.reportContent(reason, reportedUserId, reportedPostId).subscribe({
+            next: () => {
+                this.modalService.open('success');
+            },
+            error: (err) => {
+                console.error('Error submitting report:', err);
+                alert('Failed to submit report. Please try again.');
+            }
         });
-        this.modalService.open('success');
     }
 }

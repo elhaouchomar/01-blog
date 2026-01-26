@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, effect } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar';
@@ -24,58 +24,21 @@ import { ModalService } from '../../services/modal.service';
   styleUrl: './home.css'
 })
 export class Home implements OnInit {
-  currentUser: User | null = null;
-  posts: Post[] = [];
-  isLoading = false;
-  private previousModalState: string | null = null;
+  isLoading = computed(() => this.dataService.posts().length === 0 && this.dataService.isLoggedIn());
 
   constructor(
-    private dataService: DataService,
+    public dataService: DataService,
     public modalService: ModalService,
     private cdr: ChangeDetectorRef
-  ) {
-    this.dataService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-      // Always reload posts when user state changes to ensure feed consistency
-      // Use timeout to avoid race conditions with view init
-      setTimeout(() => {
-        this.loadPosts();
-      }, 100);
-    });
-
-    // Reload posts when post-related modals close
-    effect(() => {
-      const currentModal = this.modalService.activeModal();
-      if (this.previousModalState && 
-          (this.previousModalState === 'create-post' || 
-           this.previousModalState === 'edit-post' || 
-           this.previousModalState === 'confirm-delete' ||
-           this.previousModalState === 'confirm-delete-post') &&
-          currentModal === null) {
-        // Modal was closed, reload posts
-        this.loadPosts();
-      }
-      this.previousModalState = currentModal;
-    });
-  }
+  ) { }
 
   ngOnInit() {
-    this.loadPosts();
+    if (this.dataService.posts().length === 0 && this.dataService.isLoggedIn()) {
+      this.dataService.loadPosts();
+    }
   }
 
-  loadPosts() {
-    this.isLoading = true;
-    this.dataService.getPosts().subscribe({
-      next: (posts) => {
-        this.posts = posts;
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error loading posts:', err);
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }
-    });
+  get posts() {
+    return this.dataService.posts();
   }
 }

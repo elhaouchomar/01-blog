@@ -15,4 +15,5 @@ public class UserSummaryDTO {
     private String handle;
     private String avatar;
     private String role;
+    private boolean banned;
 }

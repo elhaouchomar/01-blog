@@ -46,16 +46,12 @@
                                         </div>
                                     </div>
 
-                                    <div class="cover-upload-box" style="margin-top: 2rem;">
-                                        <h3 class="settings-section-title" style="margin-bottom: 0.5rem;">Profile Cover
-                                        </h3>
+                                    <div class="cover-upload-section">
+                                        <h3 class="settings-section-title">Profile Cover</h3>
                                         <div class="cover-preview-wide"
-                                            [style.background-image]="'url(' + (editForm.cover || 'assets/default-cover.jpg') + ')'"
-                                            style="height: 120px; border-radius: 1rem; background-size: cover; background-position: center; border: 1px solid var(--gray-200); position: relative; overflow: hidden;">
-                                            <button class="btn-change-cover" (click)="coverInput.click()"
-                                                style="position: absolute; bottom: 0.75rem; right: 0.75rem; background: white; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; box-shadow: var(--shadow-sm);">
-                                                <span class="material-symbols-outlined"
-                                                    style="font-size: 1.25rem;">image</span>
+                                            [style.background-image]="'url(' + (editForm.cover || 'assets/default-cover.jpg') + ')'">
+                                            <button class="btn-change-cover" (click)="coverInput.click()">
+                                                <span class="material-symbols-outlined">image</span>
                                                 Update Cover
                                             </button>
                                         </div>
@@ -109,7 +105,8 @@
                                         <div class="form-field form-field-full">
                                             <label class="form-field-label">Newsletter Subscription</label>
                                             <div class="toggle-wrapper">
-                                                <input type="checkbox" id="subscribed" [(ngModel)]="editForm.subscribed" class="toggle-input">
+                                                <input type="checkbox" id="subscribed" [(ngModel)]="editForm.subscribed"
+                                                    class="toggle-input">
                                                 <label for="subscribed" class="toggle-label">
                                                     <span class="toggle-slider"></span>
                                                 </label>

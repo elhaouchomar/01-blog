@@ -19,13 +19,13 @@
     <div class="filter-group">
         <div class="search-box">
             <span class="material-symbols-outlined">search</span>
-            <input type="text" placeholder="Filter by author or keyword..." [(ngModel)]="searchQuery"
-                (input)="onFilterChange()">
+            <input type="text" placeholder="Filter by author or keyword..." [ngModel]="searchQuery()"
+                (input)="searchQuery.set($any($event.target).value)">
         </div>
 
         <div class="select-box">
             <span class="material-symbols-outlined icon">filter_list</span>
-            <select [(ngModel)]="statusFilter" (change)="onFilterChange()">
+            <select [ngModel]="statusFilter()" (change)="statusFilter.set($any($event.target).value)">
                 <option value="">All Statuses</option>
                 <option value="published">Published</option>
                 <option value="flagged">Flagged</option>
@@ -35,7 +35,7 @@
 
         <div class="select-box">
             <span class="material-symbols-outlined icon">sort</span>
-            <select [(ngModel)]="sortBy" (change)="onFilterChange()">
+            <select [ngModel]="sortBy()" (change)="sortBy.set($any($event.target).value)">
                 <option value="newest">Newest First</option>
                 <option value="most-liked">Most Liked</option>
                 <option value="most-reported">Most Reported</option>
@@ -58,20 +58,23 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let post of filteredPosts">
+                <tr *ngFor="let post of paginatedPosts()">
                     <td class="text-center">
-                        <div class="post-media"
+                        <div class="post-media" (click)="reviewPost(post)" style="cursor: pointer;"
                             [style.background-image]="'url(' + (post.images?.[0] || 'assets/default-post.png') + ')'">
                         </div>
                     </td>
                     <td>
                         <div class="content-cell">
-                            <p class="post-title">{{ post.title }}</p>
+                            <p class="post-title" (click)="reviewPost(post)"
+                                style="cursor: pointer; color: var(--text-main);">{{ post.title }}</p>
                             <div class="post-meta">
                                 <div class="author-avatar"
                                     [style.background-image]="'url(' + (post.user?.avatar || 'assets/default-avatar.png') + ')'">
                                 </div>
-                                <span class="author-name">{{ post.user?.name }}</span>
+                                <a [routerLink]="['/profile', post.user?.id]" class="author-name"
+                                    style="text-decoration: none; color: var(--text-secondary); transition: color 0.2s;">{{
+                                    post.user?.name }}</a>
                                 <span class="dot">•</span>
                                 <span class="date">{{ post.createdAt | date:'shortTime' }} ago</span>
                             </div>
@@ -86,11 +89,11 @@
                         </div>
                     </td>
                     <td>
-                        <div *ngIf="post.reportsCount > 0" class="reports-badge">
+                        <div *ngIf="(post.reportsCount || 0) > 0" class="reports-badge">
                             <span class="material-symbols-outlined">warning</span>
                             {{ post.reportsCount }}
                         </div>
-                        <span *ngIf="!post.reportsCount" class="no-reports">-</span>
+                        <span *ngIf="!(post.reportsCount || 0)" class="no-reports">-</span>
                     </td>
                     <td>
                         <span class="status-badge" [class]="'published'">Published</span>
@@ -106,13 +109,28 @@
                         </div>
                     </td>
                 </tr>
-                <tr *ngIf="filteredPosts.length === 0 && !isLoading">
+                <tr *ngIf="filteredPosts().length === 0 && !isLoading()">
                     <td colspan="6" class="empty-cell">No posts found</td>
                 </tr>
-                <tr *ngIf="isLoading">
+                <tr *ngIf="isLoading()">
                     <td colspan="6" class="loading-cell">Loading posts...</td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <div class="table-footer">
+        <p class="stats">Showing {{ getPageStart() }} - {{ getPageEnd() }} of {{ filteredPosts().length }} posts</p>
+        <div class="pagination">
+            <button class="btn-pager" [disabled]="currentPage() === 1" (click)="previousPage()">
+                <span class="material-symbols-outlined">chevron_left</span>
+                Previous
+            </button>
+            <span class="page-indicator">Page {{ currentPage() }} of {{ totalPages() }}</span>
+            <button class="btn-pager" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+                Next
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+        </div>
     </div>
 </div>

@@ -27,6 +27,7 @@ export interface User {
     isFollowing?: boolean;
     followersCount?: number;
     followingCount?: number;
+    banned?: boolean;
 }
 
 // Backend DTO structure
@@ -74,6 +75,7 @@ export interface Post {
     };
     category?: string;
     replies?: Comment[];
+    reportsCount?: number;
     createdAt?: string; // ISO date string from backend
 }
 
@@ -103,6 +105,7 @@ export interface RegisterRequest {
     lastname?: string;
     email?: string;
     password?: string;
+    role?: string;
 }
 
 export interface CreatePostRequest {

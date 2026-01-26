@@ -26,4 +26,5 @@ public class UserDTO {
     private Boolean isFollowing;
     private Integer followersCount;
     private Integer followingCount;
+    private Boolean banned;
 }

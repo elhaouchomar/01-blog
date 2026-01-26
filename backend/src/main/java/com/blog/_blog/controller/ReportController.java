@@ -3,10 +3,8 @@ package com.blog._blog.controller;
 import com.blog._blog.dto.CreateReportRequest;
 import com.blog._blog.dto.ReportDTO;
 import com.blog._blog.entity.Report;
-import com.blog._blog.entity.User;
 import com.blog._blog.service.ReportService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -29,20 +27,12 @@ public class ReportController {
 
     @GetMapping
     public ResponseEntity<List<ReportDTO>> getAllReports(Authentication authentication) {
-        User currentUser = (User) authentication.getPrincipal();
-        if (!currentUser.getRole().name().equals("ADMIN")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        return ResponseEntity.ok(reportService.getAllReports());
+        return ResponseEntity.ok(reportService.getAllReports(authentication.getName()));
     }
 
     @PutMapping("/{id}/status")
     public ResponseEntity<ReportDTO> updateStatus(@PathVariable Long id, @RequestParam Report.ReportStatus status,
             Authentication authentication) {
-        User currentUser = (User) authentication.getPrincipal();
-        if (!currentUser.getRole().name().equals("ADMIN")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        return ResponseEntity.ok(reportService.updateStatus(id, status));
+        return ResponseEntity.ok(reportService.updateStatus(id, status, authentication.getName()));
     }
 }

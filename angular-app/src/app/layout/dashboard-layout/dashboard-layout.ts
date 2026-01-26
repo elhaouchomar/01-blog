@@ -5,10 +5,12 @@ import { CommonModule } from '@angular/common';
 import { DataService } from '../../services/data.service';
 import { ModalService } from '../../services/modal.service';
 
+import { NavbarComponent } from '../../components/navbar/navbar';
+
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NavbarComponent],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css',
 })

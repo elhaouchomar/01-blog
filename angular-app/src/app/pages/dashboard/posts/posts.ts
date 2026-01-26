@@ -1,78 +1,74 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { DataService } from '../../../services/data.service';
 import { ModalService } from '../../../services/modal.service';
 
 @Component({
   selector: 'app-posts',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './posts.html',
   styleUrl: './posts.css',
 })
 export class Posts implements OnInit {
-  posts: any[] = [];
-  filteredPosts: any[] = [];
-  searchQuery = '';
-  statusFilter = '';
-  sortBy = 'newest';
-  isLoading = true;
+  searchQuery = signal('');
+  statusFilter = signal('');
+  sortBy = signal('newest');
+  currentPage = signal(1);
+  pageSize = 10;
 
-  constructor(private dataService: DataService, public modalService: ModalService) { }
-
-  ngOnInit() {
-    this.loadPosts();
-  }
-
-  loadPosts() {
-    this.isLoading = true;
-    this.dataService.getPosts().subscribe({
-      next: (posts) => {
-        this.posts = posts;
-        this.applyFilters();
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading posts', err);
-        this.isLoading = false;
-      }
-    });
-  }
-
-  onFilterChange() {
-    this.applyFilters();
-  }
-
-  applyFilters() {
-    let filtered = [...this.posts];
+  filteredPosts = computed(() => {
+    let filtered = [...this.dataService.posts()];
+    const query = this.searchQuery().toLowerCase();
 
     // Search filter
-    if (this.searchQuery) {
-      const query = this.searchQuery.toLowerCase();
+    if (query) {
       filtered = filtered.filter(p =>
-        p.title.toLowerCase().includes(query) ||
-        p.author.name.toLowerCase().includes(query)
+        p.title?.toLowerCase().includes(query) ||
+        p.user?.name?.toLowerCase().includes(query)
       );
-    }
-
-    // Status filter - note: backend DTO might not have status yet, using category as proxy or assuming future field
-    if (this.statusFilter) {
-      // Logic for status filtering if applicable
     }
 
     // Sorting
     filtered.sort((a, b) => {
-      if (this.sortBy === 'newest') {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      if (this.sortBy() === 'newest') {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
       }
-      if (this.sortBy === 'most-liked') {
-        return (b.likesCount || 0) - (a.likesCount || 0);
+      if (this.sortBy() === 'most-liked') {
+        return (b.likes || 0) - (a.likes || 0);
       }
       return 0;
     });
 
-    this.filteredPosts = filtered;
+    return filtered;
+  });
+
+  paginatedPosts = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize;
+    const end = start + this.pageSize;
+    return this.filteredPosts().slice(start, end);
+  });
+
+  totalPages = computed(() => {
+    return Math.ceil(this.filteredPosts().length / this.pageSize) || 1;
+  });
+
+  isLoading = computed(() => this.dataService.posts().length === 0 && !this.dataService.dashboardStats());
+
+  constructor(public dataService: DataService, public modalService: ModalService) { }
+
+  ngOnInit() {
+    if (this.dataService.posts().length === 0) {
+      this.dataService.loadPosts();
+    }
+  }
+
+  onFilterChange() {
+    this.currentPage.set(1); // Reset to page 1 when filters change
   }
 
   reviewPost(post: any) {
@@ -81,18 +77,33 @@ export class Posts implements OnInit {
 
   deletePost(post: any) {
     if (confirm(`Are you sure you want to delete "${post.title}"?`)) {
-      this.dataService.deletePost(post.id).subscribe({
-        next: () => {
-          this.posts = this.posts.filter(p => p.id !== post.id);
-          this.applyFilters();
-        },
-        error: (err) => console.error('Error deleting post', err)
-      });
+      this.dataService.deletePost(post.id).subscribe();
     }
   }
 
   exportPosts() {
     console.log('Exporting posts...');
-    // Logic for exporting CSV
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update(p => p + 1);
+    }
+  }
+
+  previousPage() {
+    if (this.currentPage() > 1) {
+      this.currentPage.update(p => p - 1);
+    }
+  }
+
+  getPageStart() {
+    if (this.filteredPosts().length === 0) return 0;
+    return (this.currentPage() - 1) * this.pageSize + 1;
+  }
+
+  getPageEnd() {
+    if (this.filteredPosts().length === 0) return 0;
+    return Math.min(this.currentPage() * this.pageSize, this.filteredPosts().length);
   }
 }

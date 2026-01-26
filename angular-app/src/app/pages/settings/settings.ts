@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../components/navbar/navbar';
@@ -15,7 +15,6 @@ import { User } from '../../models/data.models';
 })
 export class Settings implements OnInit {
     activeTab: string = 'Account';
-    user: User | null = null;
     editForm = {
         firstname: '',
         lastname: '',
@@ -25,11 +24,9 @@ export class Settings implements OnInit {
         subscribed: false
     };
 
-    constructor(private dataService: DataService) { }
-
-    ngOnInit() {
-        this.dataService.currentUser$.subscribe(user => {
-            this.user = user;
+    constructor(public dataService: DataService) {
+        effect(() => {
+            const user = this.dataService.currentUser();
             if (user) {
                 this.editForm = {
                     firstname: user.firstname || '',
@@ -43,12 +40,15 @@ export class Settings implements OnInit {
         });
     }
 
+    ngOnInit() {
+    }
+
     setActiveTab(tab: string) {
         this.activeTab = tab;
     }
 
     saveSettings() {
-        if (!this.user) return;
+        if (!this.dataService.currentUser()) return;
         this.status = { message: 'Updating profile...', type: 'info', visible: true };
 
         this.dataService.updateProfile(this.editForm).subscribe({

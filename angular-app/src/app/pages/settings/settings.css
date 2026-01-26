@@ -131,6 +131,49 @@
     margin-top: 1rem;
 }
 
+.cover-upload-section {
+    margin-top: 2.5rem;
+}
+
+.cover-preview-wide {
+    height: 160px;
+    border-radius: 1rem;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--gray-200);
+    position: relative;
+    overflow: hidden;
+    margin-top: 1rem;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.dark .cover-preview-wide {
+    border-color: var(--gray-700);
+}
+
+.btn-change-cover {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    background: white;
+    border: none;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+    font-size: 0.875rem;
+}
+
+.btn-change-cover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
 .btn-upload {
     background: var(--primary);
     color: white;
@@ -440,11 +483,11 @@ input:checked+.toggle-slider:before {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.toggle-input:checked + .toggle-label {
+.toggle-input:checked+.toggle-label {
     background-color: var(--primary);
 }
 
-.toggle-input:checked + .toggle-label .toggle-slider {
+.toggle-input:checked+.toggle-label .toggle-slider {
     transform: translateX(1rem);
 }
 
@@ -457,6 +500,6 @@ input:checked+.toggle-slider:before {
     background-color: var(--gray-700);
 }
 
-.dark .toggle-input:checked + .toggle-label {
+.dark .toggle-input:checked+.toggle-label {
     background-color: var(--primary);
 }

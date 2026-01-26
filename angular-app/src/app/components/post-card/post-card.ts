@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -22,13 +22,12 @@ export class PostCardComponent {
 
     constructor(
         protected modalService: ModalService,
-        private dataService: DataService,
+        public dataService: DataService,
         private cdr: ChangeDetectorRef,
         private sanitizer: DomSanitizer
     ) {
-        this.dataService.currentUser$.subscribe(user => {
-            this.currentUser = user;
-            this.cdr.detectChanges();
+        effect(() => {
+            this.currentUser = this.dataService.currentUser();
         });
     }
 

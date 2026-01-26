@@ -46,16 +46,25 @@ public class ReportService {
         return convertToDTO(savedReport);
     }
 
-    public List<ReportDTO> getAllReports() {
+    public List<ReportDTO> getAllReports(String requesterEmail) {
+        checkAdmin(requesterEmail);
         return reportRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    public ReportDTO updateStatus(Long id, Report.ReportStatus status) {
+    public ReportDTO updateStatus(Long id, Report.ReportStatus status, String requesterEmail) {
+        checkAdmin(requesterEmail);
         Report report = reportRepository.findById(id).orElseThrow();
         report.setStatus(status);
         return convertToDTO(reportRepository.save(report));
+    }
+
+    private void checkAdmin(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        if (user.getRole() != com.blog._blog.entity.Role.ADMIN) {
+            throw new RuntimeException("Unauthorized");
+        }
     }
 
     private ReportDTO convertToDTO(Report report) {
@@ -77,6 +86,7 @@ public class ReportService {
                 .name(user.getFirstname() + " " + user.getLastname())
                 .handle("@" + user.getEmail().split("@")[0])
                 .avatar(user.getAvatar())
+                .banned(Boolean.TRUE.equals(user.getBanned()))
                 .build();
     }
 }

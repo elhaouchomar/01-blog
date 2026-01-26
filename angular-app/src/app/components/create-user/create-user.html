@@ -1,0 +1,56 @@
+<div class="modal-overlay" (click)="close()">
+    <div class="modal-container premium-modal create-user-container" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2 class="modal-title">Provision User</h2>
+            <button class="modal-close-btn" (click)="close()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div class="modal-content custom-scrollbar">
+            <form (submit)="createUser()" class="premium-form">
+                <div class="name-grid-premium" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group-premium">
+                        <label class="premium-label">First Name</label>
+                        <input type="text" [(ngModel)]="form.firstname" name="firstname" class="premium-input"
+                            placeholder="e.g. John" required>
+                    </div>
+                    <div class="form-group-premium">
+                        <label class="premium-label">Last Name</label>
+                        <input type="text" [(ngModel)]="form.lastname" name="lastname" class="premium-input"
+                            placeholder="e.g. Doe" required>
+                    </div>
+                </div>
+
+                <div class="form-group-premium">
+                    <label class="premium-label">Email Address</label>
+                    <input type="email" [(ngModel)]="form.email" name="email" class="premium-input"
+                        placeholder="name@university.edu" required>
+                </div>
+
+                <div class="form-group-premium">
+                    <label class="premium-label">Access Password</label>
+                    <input type="password" [(ngModel)]="form.password" name="password" class="premium-input"
+                        placeholder="••••••••" required>
+                </div>
+
+                <div class="form-group-premium">
+                    <label class="premium-label">Platform Role</label>
+                    <select [(ngModel)]="form.role" name="role" class="premium-select">
+                        <option value="USER">Standard User</option>
+                        <option value="ADMIN">Lead Administrator</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <div class="modal-footer premium-footer">
+            <button type="button" class="btn-cancel-premium" (click)="close()">Cancel</button>
+            <button type="submit" class="btn-publish-premium" (click)="createUser()"
+                [disabled]="!form.email || !form.password">
+                <span>Create Account</span>
+                <span class="material-symbols-outlined">person_add</span>
+            </button>
+        </div>
+    </div>
+</div>
