@@ -41,7 +41,7 @@ public class User implements UserDetails {
     protected void onCreate() {
         createdAt = java.time.LocalDateTime.now();
     }
-
+    
     private String password;
 
     @Enumerated(EnumType.STRING)

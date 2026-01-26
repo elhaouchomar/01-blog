@@ -10,10 +10,99 @@
                 <h1 class="logo-text">01Blog</h1>
             </a>
 
-            <div class="search-bar">
-                <span class="material-symbols-outlined search-icon">search</span>
-                <input type="text" class="search-input" placeholder="Search for posts, tags, or students...">
+            <!-- Desktop Search -->
+            <div class="search-container">
+                <div class="search-bar desktop-search" [class.active]="isSearchOpen">
+                    <span class="material-symbols-outlined search-icon">search</span>
+                    <input #searchInput type="text" class="search-input" placeholder="Search for posts or people..."
+                        [(ngModel)]="searchQuery" (keyup.enter)="performSearch()" (input)="onSearchInput()"
+                        (focus)="onSearchFocus()">
+
+                    <div class="search-actions">
+                        <div class="search-spinner" *ngIf="isSearching"></div>
+                        <span class="material-symbols-outlined clear-icon" *ngIf="searchQuery && !isSearching"
+                            (click)="clearSearch()">close</span>
+                    </div>
+                </div>
+
+                <div class="search-dropdown" *ngIf="isSearchOpen && !isMobileSearch">
+                    <div class="search-dropdown-header">
+                        <div class="search-filters">
+                            <button class="filter-btn" [class.active]="searchFilter === 'all'"
+                                (click)="setFilter('all')" (mousedown)="$event.preventDefault()">
+                                <span class="material-symbols-outlined">select_all</span>
+                                All
+                            </button>
+                            <button class="filter-btn" [class.active]="searchFilter === 'posts'"
+                                (click)="setFilter('posts')" (mousedown)="$event.preventDefault()">
+                                <span class="material-symbols-outlined">article</span>
+                                Posts
+                            </button>
+                            <button class="filter-btn" [class.active]="searchFilter === 'people'"
+                                (click)="setFilter('people')" (mousedown)="$event.preventDefault()">
+                                <span class="material-symbols-outlined">person</span>
+                                People
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="search-results-container">
+                        <div class="search-results" *ngIf="searchResults.length > 0">
+                            <div *ngFor="let result of searchResults" class="search-result-item"
+                                (click)="navigateToResult(result)" (mousedown)="$event.preventDefault()">
+                                <div class="result-avatar" *ngIf="result.type === 'user'">
+                                    <img *ngIf="result.avatar" [src]="result.avatar" [alt]="result.name"
+                                        onerror="this.style.display='none'; this.parentElement.querySelector('span').style.display='flex'">
+                                    <span *ngIf="!result.avatar">
+                                        {{ (result.name || '').charAt(0).toUpperCase() }}
+                                    </span>
+                                </div>
+                                <div class="result-icon" *ngIf="result.type !== 'user'">
+                                    <span class="material-symbols-outlined" [class]="getResultIcon(result.type)">{{
+                                        getResultIcon(result.type) }}</span>
+                                </div>
+                                <div class="result-info">
+                                    <div class="result-name-wrapper">
+                                        <div class="result-name">
+                                            <span *ngIf="result.type === 'user'">{{ result.name }}</span>
+                                            <span *ngIf="result.type === 'post'">{{ result.title }}</span>
+                                        </div>
+                                        <span class="result-type-tag" [class]="result.type">{{ result.type }}</span>
+                                    </div>
+                                    <div class="result-meta">
+                                        <span *ngIf="result.type === 'user'">@{{ result.username }}</span>
+                                        <span *ngIf="result.type === 'post'">by {{ result.author }}</span>
+                                    </div>
+                                </div>
+                                <span class="material-symbols-outlined arrow-icon">chevron_right</span>
+                            </div>
+                        </div>
+
+                        <div *ngIf="searchQuery && searchResults.length === 0 && searchAttempted && !isSearching"
+                            class="no-results">
+                            <div class="no-results-content">
+                                <span class="material-symbols-outlined">sentiment_dissatisfied</span>
+                                <p>No results found for <strong>"{{ searchQuery }}"</strong></p>
+                                <span>Try adjusting your search or filters</span>
+                            </div>
+                        </div>
+
+                        <div *ngIf="isSearching" class="search-loading">
+                            <div class="loading-spinner-large"></div>
+                            <p>Searching...</p>
+                        </div>
+                    </div>
+
+                    <div class="search-dropdown-footer" *ngIf="searchQuery && searchResults.length > 0">
+                        <p>Showing top results for "{{ searchQuery }}"</p>
+                    </div>
+                </div>
             </div>
+
+            <!-- Mobile Search Icon -->
+            <button class="mobile-search-btn" (click)="toggleSearch()">
+                <span class="material-symbols-outlined">search</span>
+            </button>
         </div>
 
         <!-- Right: Nav Links & Actions -->
@@ -35,7 +124,8 @@
                         <div class="icon-wrapper">
                             <span class="material-symbols-outlined nav-item-icon"
                                 [class.filled]="isNotificationsOpen || isNotificationRoute">notifications</span>
-                            <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+                            <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount
+                                }}</span>
                         </div>
                         <span class="nav-item-text">Notifications</span>
                     </button>
@@ -49,7 +139,7 @@
 
             <!-- Actions -->
             <div class="navbar-actions">
-                <button class="btn btn-primary btn-create-post" (click)="modalService.open('create-post')">
+                <button class="btn-create-post" (click)="modalService.open('create-post')">
                     <span class="material-symbols-outlined icon-edit">edit_square</span>
                     <span>Write Post</span>
                 </button>
@@ -57,12 +147,13 @@
                 <div class="user-menu">
                     <div class="user-avatar" (click)="toggleUserMenu()"
                         [style.background-image]="'url(' + (user?.avatar || 'assets/default-avatar.png') + ')'">
+                        <span *ngIf="!user?.avatar" style="display: none;"></span>
                     </div>
 
                     <div class="dropdown-menu" *ngIf="isProfileOpen">
                         <div class="dropdown-header">
-                            <p class="user-name">{{ user?.name }}</p>
-                            <p class="user-handle">{{ user?.handle }}</p>
+                            <p class="user-name">{{ user?.name || 'User' }}</p>
+                            <p class="user-handle">{{ user?.handle || '@user' }}</p>
                         </div>
                         <div class="dropdown-divider"></div>
                         <button class="dropdown-item" routerLink="/profile" (click)="isProfileOpen = false">
@@ -74,6 +165,7 @@
                             <span class="material-symbols-outlined icon-small">dashboard</span>
                             Dashboard
                         </button>
+                        <div class="dropdown-divider"></div>
                         <button class="dropdown-item text-danger" (click)="dataService.logout()">
                             <span class="material-symbols-outlined icon-small">logout</span>
                             Logout
@@ -81,6 +173,82 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Mobile Search Overlay -->
+    <div class="mobile-search-overlay" [class.active]="isSearchOpen && isMobileSearch"
+        *ngIf="isSearchOpen && isMobileSearch" (click)="closeSearch()"></div>
+
+    <div class="mobile-search-bar" [class.active]="isSearchOpen && isMobileSearch"
+        *ngIf="isSearchOpen && isMobileSearch">
+        <div class="mobile-search-header">
+            <span class="material-symbols-outlined search-icon">search</span>
+            <input type="text" class="search-input" placeholder="Search for posts or people..."
+                [(ngModel)]="searchQuery" (input)="onSearchInput()" #mobileSearchInput (keyup.enter)="performSearch()">
+
+            <div class="search-spinner" *ngIf="isSearching"></div>
+            <span class="material-symbols-outlined clear-icon" *ngIf="searchQuery && !isSearching"
+                (click)="clearSearch()">close</span>
+            <span class="material-symbols-outlined close-icon" (click)="closeSearch()">arrow_back</span>
+        </div>
+
+        <div class="search-filters" *ngIf="isSearchOpen">
+            <button class="filter-btn" [class.active]="searchFilter === 'all'" (click)="setFilter('all')">All</button>
+            <button class="filter-btn" [class.active]="searchFilter === 'posts'"
+                (click)="setFilter('posts')">Posts</button>
+            <button class="filter-btn" [class.active]="searchFilter === 'people'"
+                (click)="setFilter('people')">People</button>
+        </div>
+
+        <div class="search-results-container">
+            <div class="search-results" *ngIf="searchResults.length > 0">
+                <div *ngFor="let result of searchResults" class="search-result-item" (click)="navigateToResult(result)">
+                    <div class="result-avatar" *ngIf="result.type === 'user'">
+                        <img *ngIf="result.avatar" [src]="result.avatar" [alt]="result.name"
+                            onerror="this.style.display='none'; this.parentElement.querySelector('span').style.display='flex'">
+                        <span *ngIf="!result.avatar">
+                            {{ (result.name || '').charAt(0).toUpperCase() }}
+                        </span>
+                    </div>
+                    <div class="result-icon" *ngIf="result.type !== 'user'">
+                        <span class="material-symbols-outlined" [class]="getResultIcon(result.type)">{{
+                            getResultIcon(result.type) }}</span>
+                    </div>
+                    <div class="result-info">
+                        <div class="result-name-wrapper">
+                            <div class="result-name">
+                                <span *ngIf="result.type === 'user'">{{ result.name }}</span>
+                                <span *ngIf="result.type === 'post'">{{ result.title }}</span>
+                            </div>
+                            <span class="result-type-tag" [class]="result.type">{{ result.type }}</span>
+                        </div>
+                        <div class="result-meta">
+                            <span *ngIf="result.type === 'user'">@{{ result.username }}</span>
+                            <span *ngIf="result.type === 'post'">by {{ result.author }}</span>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined arrow-icon">chevron_right</span>
+                </div>
+            </div>
+
+            <div *ngIf="searchQuery && searchResults.length === 0 && searchAttempted && !isSearching"
+                class="no-results">
+                <div class="no-results-content">
+                    <span class="material-symbols-outlined">sentiment_dissatisfied</span>
+                    <p>No results found for <strong>"{{ searchQuery }}"</strong></p>
+                </div>
+            </div>
+
+            <div *ngIf="isSearching" class="search-loading">
+                <div class="loading-spinner-large"></div>
+                <p>Searching...</p>
+            </div>
+        </div>
+
+        <div *ngIf="searchQuery && searchResults.length === 0" class="no-results">
+            <span class="material-symbols-outlined">search_off</span>
+            <p>No results found for "{{ searchQuery }}"</p>
         </div>
     </div>
 </header>

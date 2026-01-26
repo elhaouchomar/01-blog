@@ -25,6 +25,7 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final com.blog._blog.repository.ReportRepository reportRepository;
 
     @Transactional(readOnly = true)
     public List<PostDTO> getAllPosts(String currentUserEmail) {
@@ -173,7 +174,7 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    private PostDTO convertToDTO(Post post, User currentUser) {
+    public PostDTO convertToDTO(Post post, User currentUser) {
         boolean isOwner = currentUser != null && post.getAuthor().getId().equals(currentUser.getId());
         boolean isAdmin = currentUser != null && currentUser.getRole() == com.blog._blog.entity.Role.ADMIN;
 
@@ -192,6 +193,7 @@ public class PostService {
                 .isLiked(currentUser != null && post.getLikes().contains(currentUser))
                 .canEdit(isOwner)
                 .canDelete(isOwner || isAdmin)
+                .reportsCount((int) reportRepository.countByReportedPostId(post.getId()))
                 .createdAt(post.getCreatedAt())
                 .build();
     }

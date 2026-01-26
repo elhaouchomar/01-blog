@@ -21,23 +21,45 @@ export class RightSidebarComponent implements OnInit {
 
     ngOnInit() {
         this.loadSuggestions();
-        this.dataService.currentUser$.subscribe(() => {
-            this.loadSuggestions();
-        });
+        // Don't reload on user change to avoid immediate removal
     }
 
     loadSuggestions() {
         this.dataService.getUsers().subscribe({
             next: (users) => {
-                // Get 3 random users or just the first 3 that aren't the current user
+                // Get 3 random users or just the first 3 that aren't the current user and not followed
                 const currentUser = this.dataService.getCurrentUser();
                 this.suggestedUsers = users
-                    .filter(u => String(u.id) !== String(currentUser?.id))
+                    .filter(u => String(u.id) !== String(currentUser?.id) && !u.isFollowing)
                     .slice(0, 4);
                 this.cdr.detectChanges();
             },
             error: (err) => console.error('Error loading suggestions:', err)
         });
+    }
+
+    toggleSubscribe(user: any, event: Event) {
+        event.stopPropagation();
+        // Update locally for immediate UI feedback
+        user.isFollowing = true;
+        this.cdr.detectChanges();
+        
+        this.dataService.followUser(user.id).subscribe({
+            next: () => {
+                // Successfully subscribed
+            },
+            error: (err) => {
+                console.error('Error subscribing:', err);
+                // Revert on error
+                user.isFollowing = false;
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    removeFromSuggestions(userId: number) {
+        this.suggestedUsers = this.suggestedUsers.filter(u => u.id !== userId);
+        this.cdr.detectChanges();
     }
 
     getInitials(name: string): string {
@@ -47,22 +69,5 @@ export class RightSidebarComponent implements OnInit {
             return parts[0].charAt(0).toUpperCase();
         }
         return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-    }
-
-    toggleSubscribe(event: any) {
-        const btn = event.currentTarget;
-        btn.classList.toggle('subscribed');
-        const isSubscribed = btn.classList.contains('subscribed');
-
-        const textSpan = btn.querySelector('span:last-child');
-        const iconSpan = btn.querySelector('.material-symbols-outlined');
-
-        if (isSubscribed) {
-            if (textSpan) textSpan.innerText = 'Subscribed';
-            if (iconSpan) iconSpan.innerText = 'check';
-        } else {
-            if (textSpan) textSpan.innerText = 'Subscribe';
-            if (iconSpan) iconSpan.innerText = 'add';
-        }
     }
 }

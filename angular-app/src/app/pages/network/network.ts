@@ -28,22 +28,41 @@ export class Network implements OnInit {
         // Load immediately
         this.loadUsers();
 
-        // Also reload when user state changes
-        this.dataService.currentUser$.subscribe(user => {
-            if (user) {
-                this.loadUsers();
-            }
-        });
+        // Don't reload on user change to keep subscribed users visible until refresh
     }
 
     loadUsers() {
         this.dataService.getUsers().subscribe({
             next: (data: User[]) => {
-                this.users = data; // Keep original data, handle fallback in template
+                const currentUser = this.dataService.getCurrentUser();
+                this.users = data.filter(user => user.id !== currentUser?.id && !user.isFollowing);
                 this.cdr.detectChanges();
             },
             error: (err) => console.error('Error loading users', err)
         });
+    }
+
+    toggleSubscribe(user: User) {
+        // Update locally for immediate UI feedback
+        user.isFollowing = true;
+        this.cdr.detectChanges();
+        
+        this.dataService.followUser(user.id).subscribe({
+            next: () => {
+                // Successfully subscribed
+            },
+            error: (err) => {
+                console.error('Error subscribing to user:', err);
+                // Revert on error
+                user.isFollowing = false;
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    removeFromSuggestions(user: User) {
+        this.users = this.users.filter(u => u.id !== user.id);
+        this.cdr.detectChanges();
     }
 
     getInitials(name: string): string {
@@ -53,22 +72,5 @@ export class Network implements OnInit {
             return parts[0].charAt(0).toUpperCase();
         }
         return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-    }
-
-    toggleSubscribe(event: any) {
-        const btn = event.currentTarget;
-        btn.classList.toggle('subscribed');
-        const isSubscribed = btn.classList.contains('subscribed');
-
-        const textSpan = btn.querySelector('span:last-child');
-        const iconSpan = btn.querySelector('.material-symbols-outlined');
-
-        if (isSubscribed) {
-            if (textSpan) textSpan.innerText = 'Subscribed';
-            if (iconSpan) iconSpan.innerText = 'check';
-        } else {
-            if (textSpan) textSpan.innerText = 'Subscribe';
-            if (iconSpan) iconSpan.innerText = 'add';
-        }
     }
 }

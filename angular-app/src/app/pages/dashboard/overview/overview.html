@@ -1,0 +1,131 @@
+<div class="overview-container">
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <!-- Stat Card 1 -->
+        <div class="stat-card">
+            <div class="stat-main">
+                <div class="stat-info">
+                    <p class="stat-label">Total Users</p>
+                    <h3 class="stat-value">{{ stats.totalUsers | number }}</h3>
+                </div>
+                <div class="stat-icon users">
+                    <span class="material-symbols-outlined">group</span>
+                </div>
+            </div>
+            <div class="stat-trend positive">
+                <span class="material-symbols-outlined">trending_up</span>
+                <span class="trend-value">1.2%</span>
+                <span class="trend-label">vs last month</span>
+            </div>
+        </div>
+
+        <!-- Stat Card 2 -->
+        <div class="stat-card">
+            <div class="stat-main">
+                <div class="stat-info">
+                    <p class="stat-label">Total Posts</p>
+                    <h3 class="stat-value">{{ stats.totalPosts | number }}</h3>
+                </div>
+                <div class="stat-icon posts">
+                    <span class="material-symbols-outlined">article</span>
+                </div>
+            </div>
+            <div class="stat-trend positive">
+                <span class="material-symbols-outlined">trending_up</span>
+                <span class="trend-value">3.4%</span>
+                <span class="trend-label">vs last month</span>
+            </div>
+        </div>
+
+        <!-- Stat Card 3 -->
+        <div class="stat-card warning">
+            <div class="stat-main">
+                <div class="stat-info">
+                    <p class="stat-label">Total Reports</p>
+                    <h3 class="stat-value">{{ stats.totalReports | number }}</h3>
+                </div>
+                <div class="stat-icon reports">
+                    <span class="material-symbols-outlined">warning</span>
+                </div>
+            </div>
+            <div class="stat-trend negative">
+                <span class="material-symbols-outlined">trending_up</span>
+                <span class="trend-value">{{ stats.pendingReports }}</span>
+                <span class="trend-label">New reports requiring review</span>
+            </div>
+        </div>
+
+        <!-- Stat Card 4 -->
+        <div class="stat-card danger">
+            <div class="stat-main">
+                <div class="stat-info">
+                    <p class="stat-label">Banned Users</p>
+                    <h3 class="stat-value">{{ stats.bannedUsers | number }}</h3>
+                </div>
+                <div class="stat-icon banned">
+                    <span class="material-symbols-outlined">block</span>
+                </div>
+            </div>
+            <div class="stat-trend">
+                <span class="material-symbols-outlined">remove</span>
+                <span class="trend-value">0%</span>
+                <span class="trend-label">No change</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Chart Section -->
+        <div class="grid-card activity-card">
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">Platform Activity</h3>
+                    <p class="card-subtitle">Posts per Day (Last 30 Days)</p>
+                </div>
+            </div>
+            <div class="activity-chart">
+                <div class="chart-bars">
+                    <div *ngFor="let item of stats.activity" class="chart-bar-wrapper">
+                        <div class="chart-bar" [style.height.%]="getActivityPercentage(item.count)"
+                            [title]="item.date + ': ' + item.count"></div>
+                    </div>
+                </div>
+                <div class="chart-labels">
+                    <span *ngFor="let item of stats.activity.slice(0, 5)">{{ item.date | date:'MMM d' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reported Users Section -->
+        <div class="grid-card">
+            <div class="card-header">
+                <h3 class="card-title">Most Reported Users</h3>
+                <button class="view-all-btn" routerLink="/dashboard/reports">View All</button>
+            </div>
+            <div class="reported-users-list">
+                <div *ngFor="let user of stats.mostReportedUsers" class="reported-user-item">
+                    <div class="user-main">
+                        <div class="user-avatar"
+                            [style.background-image]="'url(' + (user.avatar || 'assets/default-avatar.png') + ')'">
+                        </div>
+                        <div class="user-info">
+                            <p class="user-name">{{ user.name }}</p>
+                            <p class="user-status" [class.banned]="user.status === 'Banned'">{{ user.status }}</p>
+                        </div>
+                    </div>
+                    <div class="user-stats">
+                        <span class="report-count">{{ user.reportCount }}</span>
+                    </div>
+                    <div class="user-actions">
+                        <button class="action-btn" title="Review Reports" routerLink="/dashboard/reports">
+                            <span class="material-symbols-outlined">visibility</span>
+                        </button>
+                    </div>
+                </div>
+                <div *ngIf="stats.mostReportedUsers.length === 0" class="empty-state">
+                    <p>No recent reports</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

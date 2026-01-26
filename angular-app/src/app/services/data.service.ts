@@ -168,8 +168,45 @@ export class DataService {
         );
     }
 
+    toggleSubscribe(): Observable<User> {
+        return this.http.put<any>(`${this.API_URL}/users/me/subscribe`, {}).pipe(
+            tap((userDTO: any) => {
+                const updatedUser = this.mapDTOToUser(userDTO);
+                this.currentUserSubject.next(updatedUser);
+            })
+        );
+    }
+
     followUser(userId: number): Observable<void> {
-        return this.http.post<void>(`${this.API_URL}/users/${userId}/follow`, {});
+        return this.http.post<void>(`${this.API_URL}/users/${userId}/follow`, {}).pipe(
+            tap(() => {
+                // Refresh current user profile to update following list
+                this.getProfile().subscribe();
+            })
+        );
+    }
+
+    // Search methods
+    search(query: string, filter: string = 'all', limit: number = 10): Observable<any> {
+        const params = { q: query, filter, limit: limit.toString() };
+        return this.http.get<any>(`${this.API_URL}/search`, { params });
+    }
+
+    // Dashboard methods
+    getDashboardStats(): Observable<any> {
+        return this.http.get<any>(`${this.API_URL}/dashboard/stats`);
+    }
+
+    getReports(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.API_URL}/reports`);
+    }
+
+    updateReportStatus(reportId: number, status: string): Observable<any> {
+        return this.http.put<any>(`${this.API_URL}/reports/${reportId}/status`, {}, { params: { status } });
+    }
+
+    reportContent(reason: string, reportedUserId?: number, reportedPostId?: number): Observable<any> {
+        return this.http.post<any>(`${this.API_URL}/reports`, { reason, reportedUserId, reportedPostId });
     }
 
     private mapDTOToUser(dto: any): User {

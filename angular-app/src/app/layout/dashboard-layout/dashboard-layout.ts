@@ -1,17 +1,27 @@
 import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { NavbarComponent } from '../../components/navbar/navbar';
 
+import { DataService } from '../../services/data.service';
 import { ModalService } from '../../services/modal.service';
 
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NavbarComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css',
 })
 export class DashboardLayout {
-  constructor(public modalService: ModalService) { }
+  isSidebarOpen = false;
+
+  constructor(public modalService: ModalService, private dataService: DataService) { }
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  logout() {
+    this.dataService.logout();
+  }
 }

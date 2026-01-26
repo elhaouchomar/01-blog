@@ -1,84 +1,118 @@
-<div class="flex flex-col gap-6">
-    <!-- Toolbar -->
-    <div class="admin-toolbar">
-        <h2 class="text-xl font-bold text-text-main dark:text-white">Post Management</h2>
-        <div class="admin-search-bar">
-            <span class="material-symbols-outlined text-gray-400">search</span>
-            <input class="admin-search-input" placeholder="Search posts..." type="text" [(ngModel)]="searchQuery"
-                (input)="filterPosts()" />
-        </div>
+<div class="page-header">
+    <div>
+        <h2 class="section-title">Posts Management</h2>
+        <p class="section-subtitle">Review, moderate and manage all platform content.</p>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-export" (click)="exportPosts()">
+            <span class="material-symbols-outlined">download</span>
+            Export
+        </button>
         <button class="btn btn-primary" (click)="modalService.open('create-post')">
-            <span class="material-symbols-outlined">add</span> Create Post
+            <span class="material-symbols-outlined">add</span>
+            Create Post
         </button>
     </div>
+</div>
 
-    <!-- Data Table -->
-    <div class="admin-table-container">
-        <table class="admin-table">
+<div class="filters-bar">
+    <div class="filter-group">
+        <div class="search-box">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" placeholder="Filter by author or keyword..." [(ngModel)]="searchQuery"
+                (input)="onFilterChange()">
+        </div>
+
+        <div class="select-box">
+            <span class="material-symbols-outlined icon">filter_list</span>
+            <select [(ngModel)]="statusFilter" (change)="onFilterChange()">
+                <option value="">All Statuses</option>
+                <option value="published">Published</option>
+                <option value="flagged">Flagged</option>
+                <option value="hidden">Hidden</option>
+            </select>
+        </div>
+
+        <div class="select-box">
+            <span class="material-symbols-outlined icon">sort</span>
+            <select [(ngModel)]="sortBy" (change)="onFilterChange()">
+                <option value="newest">Newest First</option>
+                <option value="most-liked">Most Liked</option>
+                <option value="most-reported">Most Reported</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="data-table-container">
+    <div class="table-scroll">
+        <table class="data-table">
             <thead>
                 <tr>
-                    <th>Post Content</th>
-                    <th>Author</th>
+                    <th class="text-center w-media">Media</th>
+                    <th>Content & Author</th>
                     <th>Stats</th>
+                    <th>Reports</th>
                     <th>Status</th>
                     <th class="text-right">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let post of filteredPosts">
+                    <td class="text-center">
+                        <div class="post-media"
+                            [style.background-image]="'url(' + (post.images?.[0] || 'assets/default-post.png') + ')'">
+                        </div>
+                    </td>
                     <td>
-                        <div class="flex gap-4">
-                            <!-- Thumbnail (if image exists) -->
-                            <div *ngIf="post.image" class="w-12 h-12 rounded-lg bg-cover bg-center flex-shrink-0"
-                                [style.background-image]="'url(' + post.image + ')'"></div>
-
-                            <div class="flex flex-col gap-1">
-                                <p class="font-medium text-text-main dark:text-white line-clamp-2 max-w-md">
-                                    {{ post.title }}
-                                </p>
-                                <p class="text-xs text-text-secondary line-clamp-1 max-w-md">{{ post.content }}</p>
+                        <div class="content-cell">
+                            <p class="post-title">{{ post.title }}</p>
+                            <div class="post-meta">
+                                <div class="author-avatar"
+                                    [style.background-image]="'url(' + (post.user?.avatar || 'assets/default-avatar.png') + ')'">
+                                </div>
+                                <span class="author-name">{{ post.user?.name }}</span>
+                                <span class="dot">•</span>
+                                <span class="date">{{ post.createdAt | date:'shortTime' }} ago</span>
                             </div>
                         </div>
                     </td>
                     <td>
-                        <div class="flex items-center gap-2">
-                            <div class="w-6 h-6 rounded-full bg-gray-200 bg-cover bg-center"
-                                [style.background-image]="'url(' + (post.author?.avatar || 'assets/default-avatar.png') + ')'">
-                            </div>
-                            <span class="text-sm text-text-main dark:text-white">{{ post.author?.username || 'Unknown'
-                                }}</span>
+                        <div class="stats-cell">
+                            <span class="stat"><span class="material-symbols-outlined">favorite</span> {{
+                                post.likes || 0 }}</span>
+                            <span class="stat"><span class="material-symbols-outlined">chat_bubble</span> {{
+                                post.comments || 0 }}</span>
                         </div>
                     </td>
                     <td>
-                        <div class="flex flex-col gap-1 text-xs text-text-secondary">
-                            <span class="flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[14px]">favorite</span>
-                                {{ post.likes?.length || 0 }}
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[14px]">chat_bubble</span>
-                                {{ post.comments?.length || 0 }}
-                            </span>
+                        <div *ngIf="post.reportsCount > 0" class="reports-badge">
+                            <span class="material-symbols-outlined">warning</span>
+                            {{ post.reportsCount }}
                         </div>
+                        <span *ngIf="!post.reportsCount" class="no-reports">-</span>
                     </td>
                     <td>
-                        <span class="status-badge active">Published</span>
+                        <span class="status-badge" [class]="'published'">Published</span>
                     </td>
                     <td class="text-right">
-                        <div class="action-btn-group">
-                            <button class="action-btn-sm" (click)="openPost(post)" title="View">
+                        <div class="action-buttons">
+                            <button class="action-btn" title="Review Content" (click)="reviewPost(post)">
                                 <span class="material-symbols-outlined">visibility</span>
                             </button>
-                            <button class="action-btn-sm danger" (click)="deletePost(post)" title="Delete">
+                            <button class="action-btn delete" title="Delete Post" (click)="deletePost(post)">
                                 <span class="material-symbols-outlined">delete</span>
                             </button>
                         </div>
                     </td>
                 </tr>
+                <tr *ngIf="filteredPosts.length === 0 && !isLoading">
+                    <td colspan="6" class="empty-cell">No posts found</td>
+                </tr>
+                <tr *ngIf="isLoading">
+                    <td colspan="6" class="loading-cell">Loading posts...</td>
+                </tr>
             </tbody>
         </table>
-        <div *ngIf="filteredPosts.length === 0" class="p-6 text-center text-text-secondary">
-            No posts found.
-        </div>
     </div>
 </div>

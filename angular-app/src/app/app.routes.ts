@@ -7,8 +7,11 @@ import { NotFound } from './pages/not-found/not-found';
 import { PostDetail } from './pages/post-detail/post-detail';
 
 import { DashboardLayout } from './layout/dashboard-layout/dashboard-layout';
+import { DashboardOverview } from './pages/dashboard/overview/overview';
 import { Posts } from './pages/dashboard/posts/posts';
 import { Users } from './pages/dashboard/users/users';
+import { Reports } from './pages/dashboard/reports/reports';
+import { Analytics } from './pages/dashboard/analytics/analytics';
 import { Network } from './pages/network/network';
 import { Notifications } from './pages/notifications/notifications';
 import { Settings } from './pages/settings/settings';
@@ -32,9 +35,12 @@ export const routes: Routes = [
         component: DashboardLayout,
         canActivate: [adminGuard], // Protect with admin guard
         children: [
+            { path: 'overview', component: DashboardOverview },
             { path: 'posts', component: Posts },
             { path: 'users', component: Users },
-            { path: '', redirectTo: 'posts', pathMatch: 'full' }
+            { path: 'reports', component: Reports },
+            { path: 'analytics', component: Analytics },
+            { path: '', redirectTo: 'overview', pathMatch: 'full' }
         ]
     },
     { path: '404', component: NotFound },

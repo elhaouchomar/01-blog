@@ -1,7 +1,7 @@
 <aside class="right-sidebar">
     <!-- Suggestions Section (Pure User List) -->
     <div class="sidebar-card">
-        <h2 class="card-title mb-4">Who to subscribe</h2>
+        <h2 class="card-title mb-4">Who to follow</h2>
         <ul class="follow-list">
             <li class="follow-item" *ngFor="let user of suggestedUsers">
                 <div class="avatar" *ngIf="user.avatar" [style.background-image]="'url(' + user.avatar + ')'"></div>
@@ -11,11 +11,14 @@
                 <div class="user-info">
                     <a [routerLink]="['/profile', user.id]" class="user-name">{{ user.name }}</a>
                     <p class="user-bio">{{ user.role || 'Member' }}</p>
-                    <button class="follow-btn" (click)="toggleSubscribe($event)">
-                        <span class="material-symbols-outlined text-sm">add</span>
-                        <span>Subscribe</span>
+                    <button class="follow-btn" (click)="toggleSubscribe(user, $event)" [class.subscribed]="user.isFollowing">
+                        <span class="material-symbols-outlined text-sm">{{ user.isFollowing ? 'check' : 'add' }}</span>
+                        <span>{{ user.isFollowing ? 'Subscribed' : 'Subscribe' }}</span>
                     </button>
                 </div>
+                <button class="remove-btn" (click)="removeFromSuggestions(user.id)">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
             </li>
         </ul>
         <!-- Empty state if no suggestions -->

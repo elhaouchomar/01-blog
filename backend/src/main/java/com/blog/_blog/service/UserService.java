@@ -49,6 +49,16 @@ public class UserService {
     }
 
     @Transactional
+    public UserDTO toggleSubscribe(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setSubscribed(!user.getSubscribed());
+        User saved = userRepository.save(user);
+        return convertToDTO(saved, saved);
+    }
+
+    @Transactional
     public void followUser(String followerEmail, Integer targetUserId) {
         User follower = userRepository.findByEmail(followerEmail)
                 .orElseThrow(() -> new RuntimeException("Follower not found"));

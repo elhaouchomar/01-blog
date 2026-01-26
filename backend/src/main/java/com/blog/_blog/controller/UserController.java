@@ -45,6 +45,12 @@ public class UserController {
         return ResponseEntity.ok(userService.updateProfile(email, userDTO));
     }
 
+    @PutMapping("/me/subscribe")
+    public ResponseEntity<UserDTO> toggleSubscribe(Authentication authentication) {
+        String email = authentication.getName();
+        return ResponseEntity.ok(userService.toggleSubscribe(email));
+    }
+
     @PostMapping("/{id}/follow")
     public ResponseEntity<Void> followUser(@PathVariable Integer id, Authentication authentication) {
         String email = authentication.getName();

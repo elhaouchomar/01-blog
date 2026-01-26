@@ -1,4 +1,4 @@
-import { Component, OnInit, effect } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../../services/data.service';
@@ -15,52 +15,84 @@ export class Posts implements OnInit {
   posts: any[] = [];
   filteredPosts: any[] = [];
   searchQuery = '';
-  private previousModalState: string | null = null;
+  statusFilter = '';
+  sortBy = 'newest';
+  isLoading = true;
 
-  constructor(protected modalService: ModalService, private dataService: DataService) {
-    // Reload posts when post-related modals close
-    effect(() => {
-      const currentModal = this.modalService.activeModal();
-      if (this.previousModalState && 
-          (this.previousModalState === 'create-post' || 
-           this.previousModalState === 'edit-post' || 
-           this.previousModalState === 'confirm-delete' ||
-           this.previousModalState === 'confirm-delete-post') &&
-          currentModal === null) {
-        // Modal was closed, reload posts
-        this.loadPosts();
-      }
-      this.previousModalState = currentModal;
-    });
-  }
+  constructor(private dataService: DataService, public modalService: ModalService) { }
 
   ngOnInit() {
     this.loadPosts();
   }
 
   loadPosts() {
+    this.isLoading = true;
     this.dataService.getPosts().subscribe({
       next: (posts) => {
         this.posts = posts;
-        this.filteredPosts = posts;
+        this.applyFilters();
+        this.isLoading = false;
       },
-      error: (err) => console.error('Error loading posts', err)
+      error: (err) => {
+        console.error('Error loading posts', err);
+        this.isLoading = false;
+      }
     });
   }
 
-  filterPosts() {
-    const query = this.searchQuery.toLowerCase();
-    this.filteredPosts = this.posts.filter(p =>
-      p.title?.toLowerCase().includes(query) ||
-      p.content?.toLowerCase().includes(query)
-    );
+  onFilterChange() {
+    this.applyFilters();
   }
 
-  openPost(post: any) {
+  applyFilters() {
+    let filtered = [...this.posts];
+
+    // Search filter
+    if (this.searchQuery) {
+      const query = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(p =>
+        p.title.toLowerCase().includes(query) ||
+        p.author.name.toLowerCase().includes(query)
+      );
+    }
+
+    // Status filter - note: backend DTO might not have status yet, using category as proxy or assuming future field
+    if (this.statusFilter) {
+      // Logic for status filtering if applicable
+    }
+
+    // Sorting
+    filtered.sort((a, b) => {
+      if (this.sortBy === 'newest') {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+      if (this.sortBy === 'most-liked') {
+        return (b.likesCount || 0) - (a.likesCount || 0);
+      }
+      return 0;
+    });
+
+    this.filteredPosts = filtered;
+  }
+
+  reviewPost(post: any) {
     this.modalService.open('post-details', post);
   }
 
   deletePost(post: any) {
-    this.modalService.open('confirm-delete', post); // Use confirm-delete key
+    if (confirm(`Are you sure you want to delete "${post.title}"?`)) {
+      this.dataService.deletePost(post.id).subscribe({
+        next: () => {
+          this.posts = this.posts.filter(p => p.id !== post.id);
+          this.applyFilters();
+        },
+        error: (err) => console.error('Error deleting post', err)
+      });
+    }
+  }
+
+  exportPosts() {
+    console.log('Exporting posts...');
+    // Logic for exporting CSV
   }
 }

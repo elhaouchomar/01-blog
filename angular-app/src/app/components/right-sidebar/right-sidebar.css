@@ -125,6 +125,38 @@
     display: flex;
     gap: 0.75rem;
     align-items: flex-start;
+    position: relative;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    border: none;
+    background: var(--gray-100);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: background-color 0.2s;
+}
+
+.remove-btn:hover {
+    background: var(--gray-200);
+    color: var(--text-main);
+}
+
+.dark .remove-btn {
+    background: var(--gray-800);
+}
+
+.dark .remove-btn:hover {
+    background: var(--gray-700);
 }
 
 .avatar {

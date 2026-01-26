@@ -132,6 +132,20 @@ export class Profile implements OnInit {
     }
   }
 
+  toggleSubscribe() {
+    if (this.user) {
+      this.dataService.followUser(this.user.id).subscribe({
+        next: () => {
+          // Reload user data to get updated counts and following state
+          if (this.user) {
+            this.loadUserProfile(this.user.id);
+          }
+        },
+        error: (err) => console.error('Error toggling subscribe:', err)
+      });
+    }
+  }
+
   getInitials(name: string): string {
     if (!name) return '?';
     const parts = name.trim().split(' ');

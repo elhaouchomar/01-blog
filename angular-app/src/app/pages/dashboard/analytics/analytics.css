@@ -1,0 +1,54 @@
+.analytics-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.placeholder-card {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 4rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 1px solid var(--gray-200);
+}
+
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    background-color: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.icon-circle .material-symbols-outlined {
+    font-size: 2.5rem;
+}
+
+.placeholder-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+}
+
+.placeholder-card p {
+    font-size: 1rem;
+    color: var(--gray-500);
+    max-width: 500px;
+}
+
+.dark .placeholder-card {
+    background-color: var(--surface-dark);
+    border-color: var(--gray-800);
+}
+
+.dark .placeholder-card h3 {
+    color: white;
+}

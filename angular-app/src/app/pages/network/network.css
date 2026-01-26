@@ -110,6 +110,21 @@
     margin-bottom: 0.5rem;
 }
 
+.network-stats {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
 .network-user-bio {
     font-size: 0.875rem;
     color: var(--text-secondary);

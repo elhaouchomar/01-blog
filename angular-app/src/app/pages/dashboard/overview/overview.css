@@ -1,0 +1,298 @@
+.overview-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--gray-200);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-card.warning {
+    border-right: 4px solid var(--warning);
+}
+
+.stat-card.danger {
+    border-right: 4px solid var(--danger);
+}
+
+.stat-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-500);
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    letter-spacing: -0.025em;
+}
+
+.stat-icon {
+    padding: 0.625rem;
+    border-radius: 0.75rem;
+}
+
+.stat-icon.users {
+    background-color: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary);
+}
+
+.stat-icon.posts {
+    background-color: rgba(19, 19, 236, 0.05);
+    color: #4f46e5;
+}
+
+.stat-icon.reports {
+    background-color: rgba(var(--warning-rgb), 0.1);
+    color: var(--warning);
+}
+
+.stat-icon.banned {
+    background-color: rgba(var(--danger-rgb), 0.1);
+    color: var(--danger);
+}
+
+.stat-trend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-trend.positive {
+    color: var(--success);
+}
+
+.stat-trend.negative {
+    color: var(--danger);
+}
+
+.trend-value {
+    font-size: 0.75rem;
+    font-weight: 700;
+    background-color: rgba(34, 197, 94, 0.1);
+    padding: 0.125rem 0.5rem;
+    border-radius: 1rem;
+}
+
+.negative .trend-value {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.trend-label {
+    font-size: 0.75rem;
+    color: var(--gray-400);
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.grid-card {
+    background-color: white;
+    border-radius: 1rem;
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.card-subtitle {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+}
+
+.view-all-btn {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Activity Chart Mock */
+.activity-chart {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 300px;
+}
+
+.chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    height: 200px;
+    padding-bottom: 1rem;
+}
+
+.chart-bar-wrapper {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+}
+
+.chart-bar {
+    width: 100%;
+    background-color: var(--primary);
+    border-radius: 4px 4px 0 0;
+    transition: all 0.3s;
+    min-height: 2px;
+}
+
+.chart-bar:hover {
+    background-color: var(--primary-hover);
+}
+
+.chart-labels {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-100);
+    color: var(--gray-400);
+    font-size: 0.75rem;
+}
+
+/* Reported Users */
+.reported-users-list {
+    flex: 1;
+}
+
+.reported-user-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--gray-50);
+    transition: background-color 0.2s;
+}
+
+.reported-user-item:hover {
+    background-color: var(--gray-50);
+}
+
+.user-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--gray-200);
+    background-size: cover;
+}
+
+.user-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.user-status {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--success);
+}
+
+.user-status.banned {
+    color: var(--danger);
+}
+
+.report-count {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.user-actions {
+    margin-left: 1.5rem;
+}
+
+.action-btn {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    color: var(--gray-400);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    color: var(--primary);
+    background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+.empty-state {
+    padding: 2rem;
+    text-align: center;
+    color: var(--gray-400);
+}
+
+.dark .stat-card,
+.dark .grid-card {
+    background-color: var(--surface-dark);
+    border-color: var(--gray-800);
+}
+
+.dark .stat-value,
+.dark .card-title,
+.dark .user-name,
+.dark .report-count {
+    color: white;
+}

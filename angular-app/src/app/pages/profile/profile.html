@@ -30,10 +30,10 @@
                         <!-- Actions -->
                         <div class="header-actions">
                             <ng-container *ngIf="!isOwnProfile; else ownActions">
-                                <button class="btn-subscribe-premium" [class.active]="user.isSubscribed">
-                                    <span class="material-symbols-outlined">{{ user.isSubscribed ? 'check' :
+                                <button class="btn-subscribe-premium" [class.active]="user.isFollowing" (click)="toggleSubscribe()">
+                                    <span class="material-symbols-outlined">{{ user.isFollowing ? 'check' :
                                         'person_add' }}</span>
-                                    {{ user.isSubscribed ? 'Subscribed' : 'Subscribe' }}
+                                    {{ user.isFollowing ? 'Following' : 'Follow' }}
                                 </button>
                                 <button class="btn-icon-premium" (click)="toggleMenu()">
                                     <span class="material-symbols-outlined">more_horiz</span>

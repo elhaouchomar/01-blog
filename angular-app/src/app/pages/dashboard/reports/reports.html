@@ -1,0 +1,81 @@
+<div class="reports-container">
+    <div class="page-header">
+        <div>
+            <h2 class="section-title">Reports Management</h2>
+            <p class="section-subtitle">Review and handle user and post reports.</p>
+        </div>
+    </div>
+
+    <div class="data-table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Reporter</th>
+                    <th>Reported Content</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let report of reports">
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar"
+                                [style.background-image]="'url(' + (report.reporter.avatar || 'assets/default-avatar.png') + ')'">
+                            </div>
+                            <div class="user-info">
+                                <p class="user-name">{{ report.reporter.name }}</p>
+                                <p class="user-handle">{{ report.reporter.handle }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="report.reportedUser" class="content-cell">
+                            <span class="type-tag user">User</span>
+                            <span class="content-text">{{ report.reportedUser.name }}</span>
+                        </div>
+                        <div *ngIf="report.reportedPostId" class="content-cell">
+                            <span class="type-tag post">Post</span>
+                            <span class="content-text line-clamp-1">{{ report.reportedPostTitle }}</span>
+                        </div>
+                    </td>
+                    <td class="reason-cell">
+                        <p class="reason-text">{{ report.reason }}</p>
+                    </td>
+                    <td>
+                        <span class="status-badge" [class]="getStatusClass(report.status)">
+                            {{ formatStatus(report.status) | titlecase }}
+                        </span>
+                    </td>
+                    <td>
+                        <p class="date-text">{{ report.createdAt | date:'MMM d, yyyy' }}</p>
+                    </td>
+                    <td class="text-right">
+                        <div class="action-buttons">
+                            <button *ngIf="report.status === 'PENDING'" class="action-btn review"
+                                (click)="updateStatus(report, 'UNDER_REVIEW')" title="Mark as Under Review">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
+                            <button *ngIf="report.status !== 'RESOLVED'" class="action-btn resolve"
+                                (click)="updateStatus(report, 'RESOLVED')" title="Resolve Report">
+                                <span class="material-symbols-outlined">check_circle</span>
+                            </button>
+                            <button *ngIf="report.status !== 'DISMISSED'" class="action-btn dismiss"
+                                (click)="updateStatus(report, 'DISMISSED')" title="Dismiss Report">
+                                <span class="material-symbols-outlined">cancel</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="reports.length === 0 && !isLoading">
+                    <td colspan="6" class="empty-cell">No reports found</td>
+                </tr>
+                <tr *ngIf="isLoading">
+                    <td colspan="6" class="loading-cell">Loading reports...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

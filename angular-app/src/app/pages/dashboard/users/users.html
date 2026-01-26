@@ -1,3 +1,109 @@
-<div class="max-w-7xl mx-auto flex flex-col gap-6">
-    <app-user-list></app-user-list>
+<div class="page-header">
+    <div>
+        <h2 class="section-title">Users Management</h2>
+        <p class="section-subtitle">Manage user access, roles and status.</p>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-export">
+            <span class="material-symbols-outlined">download</span>
+            Export CSV
+        </button>
+        <button class="btn btn-primary" (click)="modalService.open('create-user')">
+            <span class="material-symbols-outlined">person_add</span>
+            Add User
+        </button>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="filters-bar">
+    <div class="search-box">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Search by name, email or role..." [(ngModel)]="searchQuery"
+            (input)="onSearch()">
+    </div>
+    <div class="status-chips">
+        <span class="label">Status:</span>
+        <button class="chip" [class.active]="statusFilter === 'all'" (click)="setStatusFilter('all')">All Users</button>
+        <button class="chip" [class.active]="statusFilter === 'active'"
+            (click)="setStatusFilter('active')">Active</button>
+        <button class="chip" [class.active]="statusFilter === 'banned'"
+            (click)="setStatusFilter('banned')">Banned</button>
+        <button class="chip" [class.active]="statusFilter === 'moderators'"
+            (click)="setStatusFilter('moderators')">Moderators</button>
+    </div>
+</div>
+
+<div class="data-table-container">
+    <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="w-checkbox"><input type="checkbox"></th>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of filteredUsers" [class.row-banned]="user.banned">
+                    <td><input type="checkbox"></td>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar"
+                                [style.background-image]="'url(' + (user.avatar || 'assets/default-avatar.png') + ')'">
+                            </div>
+                            <div class="user-info">
+                                <p class="user-name">{{ user.name }}</p>
+                                <p class="user-email">{{ user.email }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="role-badge" [class]="user.role.toLowerCase()">
+                            {{ user.role }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-indicator" [class.active]="!user.banned" [class.banned]="user.banned">
+                            {{ user.banned ? 'Banned' : 'Active' }}
+                        </span>
+                    </td>
+                    <td>
+                        <p class="date-text">{{ user.createdAt | date:'MMM d, yyyy' }}</p>
+                    </td>
+                    <td class="text-right">
+                        <div class="action-buttons">
+                            <button class="action-btn" title="Edit User" (click)="editUser(user)">
+                                <span class="material-symbols-outlined">edit</span>
+                            </button>
+                            <button class="action-btn block-btn" [title]="user.banned ? 'Unban User' : 'Ban User'"
+                                [class.active]="user.banned" (click)="toggleBan(user)">
+                                <span class="material-symbols-outlined">block</span>
+                            </button>
+                            <button class="action-btn delete-btn" title="Delete User" (click)="deleteUser(user)">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="filteredUsers.length === 0 && !isLoading">
+                    <td colspan="6" class="empty-cell">No users found matching your filters</td>
+                </tr>
+                <tr *ngIf="isLoading">
+                    <td colspan="6" class="loading-cell">Loading users...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-footer">
+        <p class="stats">Showing {{ filteredUsers.length }} of {{ users.length }} users</p>
+        <div class="pagination">
+            <button class="btn-pager" disabled>Previous</button>
+            <button class="btn-pager">Next</button>
+        </div>
+    </div>
 </div>

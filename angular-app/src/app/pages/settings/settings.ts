@@ -21,7 +21,8 @@ export class Settings implements OnInit {
         lastname: '',
         bio: '',
         avatar: '',
-        cover: ''
+        cover: '',
+        subscribed: false
     };
 
     constructor(private dataService: DataService) { }
@@ -35,7 +36,8 @@ export class Settings implements OnInit {
                     lastname: user.lastname || '',
                     bio: user.bio || '',
                     avatar: user.avatar || '',
-                    cover: user.cover || ''
+                    cover: user.cover || '',
+                    subscribed: user.subscribed || false
                 };
             }
         });

@@ -11,7 +11,7 @@
             <!-- User Grid -->
             <div class="network-grid">
                 <div *ngFor="let user of users" class="network-user-card">
-                    <button class="btn-close-card">
+                    <button class="btn-close-card" (click)="removeFromSuggestions(user)">
                         <span class="material-symbols-outlined icon-small">close</span>
                     </button>
 
@@ -29,25 +29,32 @@
 
                     <p class="network-user-role">{{ user.role }}</p>
 
+                    <div class="network-stats">
+                        <span class="stat-item">{{ user.followersCount || 0 }} followers</span>
+                        <span class="stat-item">{{ user.followingCount || 0 }} following</span>
+                    </div>
+
                     <p class="network-user-bio" *ngIf="user.bio">{{ user.bio }}</p>
                     <p class="network-user-bio" *ngIf="!user.bio">Passionate about tech. Let's connect!</p>
 
                     <div class="network-actions">
-                        <button (click)="toggleSubscribe($event)" class="btn-subscribe">
-                            <span class="material-symbols-outlined icon-small">add</span>
-                            <span>Subscribe</span>
+                        <button (click)="toggleSubscribe(user)" 
+                                [class.subscribed]="user.isFollowing"
+                                class="btn-subscribe">
+                            <span class="material-symbols-outlined icon-small">{{ user.isFollowing ? 'check' : 'add' }}</span>
+                            <span>{{ user.isFollowing ? 'Subscribed' : 'Subscribe' }}</span>
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- Load More -->
-            <div class="load-more-container">
+            <!-- <div class="load-more-container">
                 <button class="btn-load-more-people">
                     Load more people
                     <span class="material-symbols-outlined icon-small">expand_more</span>
                 </button>
-            </div>
+            </div> -->
         </main>
 
         <!-- Right Sidebar (Trending) -->
