@@ -83,6 +83,14 @@ public class PostService {
                 .build();
 
         Post saved = postRepository.save(post);
+
+        // Notify followers
+        if (author.getFollowers() != null) {
+            author.getFollowers().forEach(follower -> {
+                notificationService.createNotification(follower, author, NotificationType.NEW_POST, saved.getId());
+            });
+        }
+
         return convertToDTO(saved, author);
     }
 

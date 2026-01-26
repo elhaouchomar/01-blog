@@ -14,8 +14,10 @@ import { DataService } from '../../services/data.service';
 export class CreatePost implements OnInit, OnDestroy {
   title = '';
   content = '';
-  imageUrls: string[] = []; // Changed to array
-  selectedFileNames: string[] = []; // Changed to array
+  imageUrls: string[] = []; // For preview
+  selectedFileNames: string[] = [];
+  selectedFiles: File[] = [];
+  isLoading = false;
 
   constructor(protected modalService: ModalService, private dataService: DataService) {
     console.log('CreatePost Component Constructor - Modal Service:', modalService);
@@ -24,9 +26,7 @@ export class CreatePost implements OnInit, OnDestroy {
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      // Process all selected files
       Array.from(input.files).forEach(file => {
-        // Validate file size (max 10MB)
         const maxSize = 10 * 1024 * 1024; // 10MB
         if (file.size > maxSize) {
           alert(`File ${file.name} is too large (max 10MB)`);
@@ -34,40 +34,60 @@ export class CreatePost implements OnInit, OnDestroy {
         }
 
         this.selectedFileNames.push(file.name);
+        this.selectedFiles.push(file);
 
-        // Convert file to Base64
+        // Convert file to Base64 only for preview
         const reader = new FileReader();
         reader.onload = (e: any) => {
           this.imageUrls.push(e.target.result);
         };
         reader.readAsDataURL(file);
       });
-
-      // Reset input value to allow selecting same file again if needed
       input.value = '';
     }
   }
 
   createPost() {
     if (!this.title || !this.content) return;
+    this.isLoading = true;
 
+    if (this.selectedFiles.length > 0) {
+      // First upload files
+      this.dataService.uploadFiles(this.selectedFiles).subscribe({
+        next: (fileNames) => {
+          const remoteUrls = fileNames.map(name => `http://localhost:8080/uploads/${name}`);
+          this.submitPost(remoteUrls);
+        },
+        error: (err) => {
+          console.error('Error uploading files:', err);
+          alert('Failed to upload media. Please try again.');
+          this.isLoading = false;
+        }
+      });
+    } else {
+      this.submitPost([]);
+    }
+  }
+
+  private submitPost(mediaUrls: string[]) {
     this.dataService.addPost({
       title: this.title,
       content: this.content,
-      images: this.imageUrls.length > 0 ? this.imageUrls : undefined
+      images: mediaUrls.length > 0 ? mediaUrls : undefined
     }).subscribe({
       next: (newPost) => {
         console.log('Post created successfully:', newPost);
-        // Clear form
         this.title = '';
         this.content = '';
         this.imageUrls = [];
         this.selectedFileNames = [];
-        // Close modal - home component will refresh via subscription
+        this.selectedFiles = [];
+        this.isLoading = false;
         this.modalService.close();
       },
       error: (err) => {
         console.error('Error creating post:', err);
+        this.isLoading = false;
         if (err.status === 403 || err.status === 401) {
           alert('Session expired. Please log in again.');
           this.modalService.close();

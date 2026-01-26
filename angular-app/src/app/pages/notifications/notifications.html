@@ -53,7 +53,8 @@
                                     'badge-chat': notification.type === 'COMMENT',
                                     'badge-like': notification.type === 'LIKE',
                                     'badge-event': notification.type === 'SYSTEM',
-                                    'badge-follow': notification.type === 'FOLLOW'
+                                    'badge-follow': notification.type === 'FOLLOW',
+                                    'badge-post': notification.type === 'NEW_POST'
                                 }">
                             <span class="material-symbols-outlined icon-small"
                                 *ngIf="notification.type === 'COMMENT'">chat</span>
@@ -63,6 +64,8 @@
                                 *ngIf="notification.type === 'SYSTEM'">event</span>
                             <span class="material-symbols-outlined icon-small"
                                 *ngIf="notification.type === 'FOLLOW'">person_add</span>
+                            <span class="material-symbols-outlined icon-small"
+                                *ngIf="notification.type === 'NEW_POST'">article</span>
                         </div>
                     </div>
 

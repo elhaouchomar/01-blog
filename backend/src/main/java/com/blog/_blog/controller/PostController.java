@@ -14,6 +14,16 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final com.blog._blog.service.FileStorageService fileStorageService;
+
+    @PostMapping("/upload")
+    public ResponseEntity<List<String>> uploadFiles(
+            @RequestParam("files") org.springframework.web.multipart.MultipartFile[] files) {
+        List<String> fileNames = java.util.Arrays.stream(files)
+                .map(fileStorageService::storeFile)
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(fileNames);
+    }
 
     @GetMapping
     public ResponseEntity<List<PostDTO>> getAllPosts(

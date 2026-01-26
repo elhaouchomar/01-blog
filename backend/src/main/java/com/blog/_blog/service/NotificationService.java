@@ -95,6 +95,8 @@ public class NotificationService {
                 return "commented on your post.";
             case FOLLOW:
                 return "started following you.";
+            case NEW_POST:
+                return "published a new post.";
             case SYSTEM:
                 return "sent a system alert.";
             default:
