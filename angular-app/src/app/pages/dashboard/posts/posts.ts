@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { DataService } from '../../../services/data.service';
 import { ModalService } from '../../../services/modal.service';
+import { usePagination } from '../../../utils/pagination.utils';
 
 @Component({
   selector: 'app-posts',
@@ -16,8 +17,6 @@ export class Posts implements OnInit {
   searchQuery = signal('');
   statusFilter = signal('');
   sortBy = signal('newest');
-  currentPage = signal(1);
-  pageSize = 10;
 
   filteredPosts = computed(() => {
     let filtered = [...this.dataService.posts()];
@@ -47,15 +46,8 @@ export class Posts implements OnInit {
     return filtered;
   });
 
-  paginatedPosts = computed(() => {
-    const start = (this.currentPage() - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    return this.filteredPosts().slice(start, end);
-  });
-
-  totalPages = computed(() => {
-    return Math.ceil(this.filteredPosts().length / this.pageSize) || 1;
-  });
+  // Use standardized pagination logic
+  pagination = usePagination(this.filteredPosts);
 
   isLoading = computed(() => this.dataService.posts().length === 0 && !this.dataService.dashboardStats());
 
@@ -68,7 +60,7 @@ export class Posts implements OnInit {
   }
 
   onFilterChange() {
-    this.currentPage.set(1); // Reset to page 1 when filters change
+    this.pagination.goToPage(1); // Reset to page 1 using utility
   }
 
   reviewPost(post: any) {
@@ -83,27 +75,5 @@ export class Posts implements OnInit {
 
   exportPosts() {
     console.log('Exporting posts...');
-  }
-
-  nextPage() {
-    if (this.currentPage() < this.totalPages()) {
-      this.currentPage.update(p => p + 1);
-    }
-  }
-
-  previousPage() {
-    if (this.currentPage() > 1) {
-      this.currentPage.update(p => p - 1);
-    }
-  }
-
-  getPageStart() {
-    if (this.filteredPosts().length === 0) return 0;
-    return (this.currentPage() - 1) * this.pageSize + 1;
-  }
-
-  getPageEnd() {
-    if (this.filteredPosts().length === 0) return 0;
-    return Math.min(this.currentPage() * this.pageSize, this.filteredPosts().length);
   }
 }

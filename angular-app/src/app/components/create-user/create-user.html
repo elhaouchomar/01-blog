@@ -1,5 +1,5 @@
 <div class="modal-overlay" (click)="close()">
-    <div class="modal-container premium-modal create-user-container" (click)="$event.stopPropagation()">
+    <div class="premium-modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
             <h2 class="modal-title">Provision User</h2>
             <button class="modal-close-btn" (click)="close()">
@@ -9,7 +9,7 @@
 
         <div class="modal-content custom-scrollbar">
             <form (submit)="createUser()" class="premium-form">
-                <div class="name-grid-premium" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="name-grid-premium">
                     <div class="form-group-premium">
                         <label class="premium-label">First Name</label>
                         <input type="text" [(ngModel)]="form.firstname" name="firstname" class="premium-input"

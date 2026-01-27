@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
@@ -32,7 +32,8 @@ export class PostDetails implements OnInit {
     private route: ActivatedRoute,
     public dataService: DataService,
     private router: Router,
-    protected modalService: ModalService
+    protected modalService: ModalService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -42,10 +43,19 @@ export class PostDetails implements OnInit {
     const modalData = this.modalService.modalData();
     if (modalData) {
       if (modalData.id) {
+        // 1. Try to find in cache first for immediate display
+        const cachedPost = this.dataService.posts().find(p => p.id === modalData.id);
+        if (cachedPost) {
+          this.post = cachedPost;
+          this.comments = cachedPost.replies || [];
+        }
+
+        // 2. Refresh from server (or fetch if not cached)
         this.dataService.getPost(modalData.id).subscribe({
           next: (post) => {
             this.post = post;
             this.comments = post.replies || [];
+            this.cdr.detectChanges();
           },
           error: (err) => console.error('Error loading post:', err)
         });
@@ -89,19 +99,64 @@ export class PostDetails implements OnInit {
   addComment() {
     if (!this.newComment.trim() || !this.post || this.isSubmitting) return;
 
+    // 1. Capture content & prepare optimistic update
+    const content = this.newComment.trim();
+    const currentUser = this.dataService.currentUser();
+
+    // Create temp comment
+    const tempComment: any = {
+      id: -Date.now(), // Temporary negative ID
+      content: content,
+      user: currentUser || { name: 'You', avatar: '' }, // Fallback if user not loaded
+      time: new Date().toISOString(),
+      likes: 0,
+      isLiked: false
+    };
+
+    // 2. Apply Optimistic Updates
+    this.comments = [...this.comments, tempComment];
+    this.newComment = ''; // Clear input immediately
+    if (this.post) this.post.comments++;
+
+    // Force immediate UI refresh
+    this.cdr.detectChanges();
+    this.scrollToBottom(); // Auto-scroll to show new comment
+
     this.isSubmitting = true;
-    this.dataService.addComment(this.post.id, this.newComment.trim()).subscribe({
-      next: (comment) => {
-        this.comments = [...this.comments, comment];
-        this.newComment = '';
-        if (this.post) this.post.comments++;
+
+    // 3. Send to Server
+    this.dataService.addComment(this.post.id, content).subscribe({
+      next: (realComment) => {
+        // Replace temp comment with real one
+        const index = this.comments.findIndex(c => c.id === tempComment.id);
+        if (index !== -1) {
+          const updatedComments = [...this.comments];
+          updatedComments[index] = realComment;
+          this.comments = updatedComments; // Trigger CD check
+        }
         this.isSubmitting = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error adding comment:', err);
+        // Revert changes on error
+        this.comments = this.comments.filter(c => c.id !== tempComment.id);
+        this.newComment = content; // Restore input
+        if (this.post) this.post.comments--;
+
         this.isSubmitting = false;
+        this.cdr.detectChanges();
       }
     });
+  }
+
+  private scrollToBottom() {
+    setTimeout(() => {
+      const container = document.querySelector('.sidebar-scroll-zone');
+      if (container) {
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+      }
+    }, 50);
   }
 
   nextSlide() {

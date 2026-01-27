@@ -58,7 +58,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let post of paginatedPosts()">
+                <tr *ngFor="let post of pagination.paginatedData()">
                     <td class="text-center">
                         <div class="post-media" (click)="reviewPost(post)" style="cursor: pointer;"
                             [style.background-image]="'url(' + (post.images?.[0] || 'assets/default-post.png') + ')'">
@@ -120,14 +120,16 @@
     </div>
 
     <div class="table-footer">
-        <p class="stats">Showing {{ getPageStart() }} - {{ getPageEnd() }} of {{ filteredPosts().length }} posts</p>
+        <p class="stats">Showing {{ pagination.getPageStart() }} - {{ pagination.getPageEnd() }} of {{
+            filteredPosts().length }} posts</p>
         <div class="pagination">
-            <button class="btn-pager" [disabled]="currentPage() === 1" (click)="previousPage()">
+            <button class="btn-pager" [disabled]="pagination.currentPage() === 1" (click)="pagination.previousPage()">
                 <span class="material-symbols-outlined">chevron_left</span>
                 Previous
             </button>
-            <span class="page-indicator">Page {{ currentPage() }} of {{ totalPages() }}</span>
-            <button class="btn-pager" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+            <span class="page-indicator">Page {{ pagination.currentPage() }} of {{ pagination.totalPages() }}</span>
+            <button class="btn-pager" [disabled]="pagination.currentPage() === pagination.totalPages()"
+                (click)="pagination.nextPage()">
                 Next
                 <span class="material-symbols-outlined">chevron_right</span>
             </button>

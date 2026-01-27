@@ -50,7 +50,7 @@ export interface Comment {
 
 export interface Post {
     id: number;
-    user: UserSummaryDTO; // Match backend structure
+    user: User | UserSummaryDTO; // Allow full user object or summary DTO
     time: string;
     readTime?: string;
     title?: string;

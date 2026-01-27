@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { DataService } from '../../../services/data.service';
 import { ModalService } from '../../../services/modal.service';
+import { usePagination } from '../../../utils/pagination.utils';
 
 @Component({
     selector: 'app-dashboard-reports',
@@ -12,6 +13,12 @@ import { ModalService } from '../../../services/modal.service';
     styleUrl: './reports.css',
 })
 export class Reports implements OnInit {
+    // Basic computed for reports - can extend with filters later if needed
+    filteredReports = computed(() => this.dataService.reports());
+
+    // Use standardized pagination logic
+    pagination = usePagination(this.filteredReports);
+
     isLoading = computed(() => this.dataService.reports().length === 0 && !this.dataService.dashboardStats());
 
     constructor(public dataService: DataService, private modalService: ModalService) { }

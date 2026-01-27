@@ -7,6 +7,7 @@ import { RightSidebarComponent } from '../../components/right-sidebar/right-side
 import { DataService } from '../../services/data.service';
 import { Notification as AppNotification } from '../../models/data.models';
 import { ModalService } from '../../services/modal.service';
+import { getInitials } from '../../utils/string.utils';
 
 @Component({
     selector: 'app-notifications',
@@ -96,12 +97,6 @@ export class Notifications implements OnInit {
         }
     }
 
-    getInitials(name: string): string {
-        if (!name) return '?';
-        const parts = name.trim().split(' ');
-        if (parts.length === 1) {
-            return parts[0].charAt(0).toUpperCase();
-        }
-        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-    }
+    // Use shared utility
+    getInitials = getInitials;
 }

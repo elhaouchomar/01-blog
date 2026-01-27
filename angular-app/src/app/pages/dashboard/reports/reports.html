@@ -19,7 +19,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let report of dataService.reports()" [class.row-resolved]="report.status === 'RESOLVED'">
+                <tr *ngFor="let report of pagination.paginatedData()"
+                    [class.row-resolved]="report.status === 'RESOLVED'">
                     <td>
                         <a [routerLink]="['/profile', report.reporter?.id]" class="user-cell"
                             style="text-decoration: none; display: flex; align-items: center; gap: 0.75rem;">
@@ -86,5 +87,22 @@
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <div class="table-footer">
+        <p class="stats">Showing {{ pagination.getPageStart() }} - {{ pagination.getPageEnd() }} of {{
+            filteredReports().length }} reports</p>
+        <div class="pagination">
+            <button class="btn-pager" [disabled]="pagination.currentPage() === 1" (click)="pagination.previousPage()">
+                <span class="material-symbols-outlined">chevron_left</span>
+                Previous
+            </button>
+            <span class="page-indicator">Page {{ pagination.currentPage() }} of {{ pagination.totalPages() }}</span>
+            <button class="btn-pager" [disabled]="pagination.currentPage() === pagination.totalPages()"
+                (click)="pagination.nextPage()">
+                Next
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+        </div>
     </div>
 </div>

@@ -49,7 +49,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let user of paginatedUsers()" [class.row-banned]="user.banned">
+                <tr *ngFor="let user of pagination.paginatedData()" [class.row-banned]="user.banned">
                     <td><input type="checkbox"></td>
                     <td>
                         <a [routerLink]="['/profile', user.id]" class="user-cell"
@@ -102,14 +102,16 @@
     </div>
 
     <div class="table-footer">
-        <p class="stats">Showing {{ getPageStart() }} - {{ getPageEnd() }} of {{ filteredUsers().length }} users</p>
+        <p class="stats">Showing {{ pagination.getPageStart() }} - {{ pagination.getPageEnd() }} of {{
+            filteredUsers().length }} users</p>
         <div class="pagination">
-            <button class="btn-pager" [disabled]="currentPage() === 1" (click)="previousPage()">
+            <button class="btn-pager" [disabled]="pagination.currentPage() === 1" (click)="pagination.previousPage()">
                 <span class="material-symbols-outlined">chevron_left</span>
                 Previous
             </button>
-            <span class="page-indicator">Page {{ currentPage() }} of {{ totalPages() }}</span>
-            <button class="btn-pager" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+            <span class="page-indicator">Page {{ pagination.currentPage() }} of {{ pagination.totalPages() }}</span>
+            <button class="btn-pager" [disabled]="pagination.currentPage() === pagination.totalPages()"
+                (click)="pagination.nextPage()">
                 Next
                 <span class="material-symbols-outlined">chevron_right</span>
             </button>

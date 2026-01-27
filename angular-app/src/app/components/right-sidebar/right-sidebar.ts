@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { DataService } from '../../services/data.service';
 import { User } from '../../models/data.models';
+import { getInitials } from '../../utils/string.utils';
 
 @Component({
     selector: 'app-right-sidebar',
@@ -43,7 +44,7 @@ export class RightSidebarComponent implements OnInit {
         // Update locally for immediate UI feedback
         user.isFollowing = true;
         this.cdr.detectChanges();
-        
+
         this.dataService.followUser(user.id).subscribe({
             next: () => {
                 // Successfully subscribed
@@ -62,12 +63,6 @@ export class RightSidebarComponent implements OnInit {
         this.cdr.detectChanges();
     }
 
-    getInitials(name: string): string {
-        if (!name) return '?';
-        const parts = name.trim().split(' ');
-        if (parts.length === 1) {
-            return parts[0].charAt(0).toUpperCase();
-        }
-        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-    }
+    // Use shared utility
+    getInitials = getInitials;
 }

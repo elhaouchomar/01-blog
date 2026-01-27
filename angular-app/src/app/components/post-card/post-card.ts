@@ -6,6 +6,7 @@ import { Post } from '../../models/data.models';
 import { ModalService } from '../../services/modal.service';
 import { DataService } from '../../services/data.service';
 import { ActionMenuComponent, ActionMenuItem } from '../action-menu/action-menu';
+import { getInitials } from '../../utils/string.utils';
 
 @Component({
     selector: 'app-post-card',
@@ -110,14 +111,8 @@ export class PostCardComponent {
         }
     }
 
-    getInitials(name: string): string {
-        if (!name) return '?';
-        const parts = name.trim().split(' ');
-        if (parts.length === 1) {
-            return parts[0].charAt(0).toUpperCase();
-        }
-        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-    }
+    // Use shared utility
+    getInitials = getInitials;
 
     get canEdit(): boolean {
         if (!this.currentUser || !this.post.user) return false;
