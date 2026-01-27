@@ -9,7 +9,7 @@
     [post]="modalService.modalData()"></app-post-details>
 <app-report-modal *ngIf="modalService.activeModal() === 'report-post'"
     [type]="modalService.modalData()?.reportType || 'post'"></app-report-modal>
-<app-success-posted *ngIf="modalService.activeModal() === 'success'"></app-success-posted>
+<!-- <app-success-posted *ngIf="modalService.activeModal() === 'success'"></app-success-posted> -->
 <app-delete-modal *ngIf="modalService.activeModal() === 'delete-v2'"
     [post]="modalService.modalData()"></app-delete-modal>
 <app-media-viewer *ngIf="modalService.activeModal() === 'media-viewer'"

@@ -7,7 +7,7 @@ import { CreatePost } from './components/create-post/create-post';
 import { EditPost } from './components/edit-post/edit-post';
 import { PostDetails } from './components/post-details/post-details';
 import { ReportModal } from './components/report-modal/report-modal';
-import { SuccessPosted } from './components/success-posted/success-posted';
+// import { SuccessPosted } from './components/success-posted/success-posted';
 import { ConfirmDeletePost } from './components/confirm-delete-post/confirm-delete-post';
 import { MediaViewer } from './components/media-viewer/media-viewer';
 import { CreateUser } from './components/create-user/create-user';
@@ -28,7 +28,7 @@ import { DataService } from './services/data.service';
     EditPost,
     PostDetails,
     ReportModal,
-    SuccessPosted,
+    // SuccessPosted,
     ConfirmDeletePost,
     MediaViewer,
     CreateUser,
