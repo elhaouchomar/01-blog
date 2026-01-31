@@ -16,13 +16,6 @@
 
         <div class="d-flex gap-2 ms-auto">
             <select class="form-select border-0 bg-light rounded-3 fw-bold text-secondary" style="width: 160px;"
-                [ngModel]="statusFilter()" (change)="statusFilter.set($any($event.target).value)">
-                <option value="">All Statuses</option>
-                <option value="published">Published</option>
-                <option value="flagged">Flagged</option>
-                <option value="hidden">Hidden</option>
-            </select>
-            <select class="form-select border-0 bg-light rounded-3 fw-bold text-secondary" style="width: 160px;"
                 [ngModel]="sortBy()" (change)="sortBy.set($any($event.target).value)">
                 <option value="newest">Newest First</option>
                 <option value="most-liked">Most Liked</option>
