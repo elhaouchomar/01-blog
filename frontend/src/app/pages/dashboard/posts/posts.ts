@@ -213,6 +213,6 @@ export class Posts implements OnInit {
   }
 
   exportPosts() {
-    console.log('Exporting posts...');
+    // TODO: Implement CSV/JSON export
   }
 }

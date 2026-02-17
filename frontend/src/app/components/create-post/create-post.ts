@@ -26,9 +26,7 @@ export class CreatePost implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone,
     private alert: MaterialAlertService
-  ) {
-    console.log('CreatePost Component Constructor - Modal Service:', modalService);
-  }
+  ) { }
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -104,7 +102,6 @@ export class CreatePost implements OnInit, OnDestroy {
       images: mediaUrls.length > 0 ? mediaUrls : undefined
     }).subscribe({
       next: (newPost) => {
-        console.log('Post created successfully:', newPost);
         this.title = '';
         this.content = '';
         this.imageUrls = [];
@@ -115,7 +112,6 @@ export class CreatePost implements OnInit, OnDestroy {
         this.modalService.close();
       },
       error: (err) => {
-        console.error('Error creating post:', err);
         this.isLoading = false;
         this.cdr.detectChanges();
         if (err.status === 403 || err.status === 401) {
@@ -143,27 +139,22 @@ export class CreatePost implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('CreatePost Component Initialized');
     // Prevent body scrolling when modal is open
     document.body.style.overflow = 'hidden';
-    console.log('Body overflow hidden set');
   }
 
   close() {
-    console.log('Closing modal from component');
     this.modalService.close();
   }
 
   // Close modal on Escape key
   @HostListener('document:keydown.escape', ['$event'])
   handleEscapeKey(event: Event) {
-    console.log('Escape key pressed');
     event.preventDefault();
     this.close();
   }
 
   ngOnDestroy() {
-    console.log('CreatePost Component Destroyed');
     // Restore scrolling when modal is destroyed
     document.body.style.overflow = '';
   }

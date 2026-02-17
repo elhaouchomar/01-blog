@@ -50,6 +50,31 @@ All backend routes are under `http://localhost:8080/api`.
 - Role-based access control is enforced for admin routes.
 - Passwords are hashed with BCrypt.
 
+## Production Deployment
+
+### Using Docker Compose
+```bash
+docker compose up --build
+```
+This will start:
+- PostgreSQL database on port 5433
+- Backend API on port 8080
+- Frontend on port 4200
+
+### Environment Variables
+
+#### Backend (Spring Boot)
+- `SPRING_DATASOURCE_URL`: Database connection URL
+- `SPRING_DATASOURCE_USERNAME`: Database username
+- `SPRING_DATASOURCE_PASSWORD`: Database password
+- `FILE_UPLOAD_DIR`: Directory for uploaded media files
+- `JWT_SECRET`: Secret key for JWT token signing
+- `JWT_EXPIRATION`: JWT token expiration time in milliseconds
+
+#### Frontend (Angular)
+- Build for production: `npm run build --prod`
+- Output directory: `dist/`
+
 ## Additional Setup Guides
 - `backend/README.md`
 - `frontend/README.md`

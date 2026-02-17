@@ -1,6 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
-import { CommonModule } from '@angular/common'; // Import CommonModule
+import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs';
 import { ModalService } from './core/services/modal.service';
 import { CreatePost } from './components/create-post/create-post';
@@ -10,35 +10,19 @@ import { CreateUser } from './components/create-user/create-user';
 import { EditProfileModal } from './components/edit-profile/edit-profile';
 import { AdminEditUser } from './components/admin-edit-user/admin-edit-user';
 
-import { DataService } from './core/services/data.service';
-
 @Component({
   selector: 'app-root',
-  imports: [
-    RouterOutlet,
-    CommonModule,
-    CreatePost,
-    EditPost,
-    PostDetails,
-    CreateUser,
-    EditProfileModal,
-    AdminEditUser
-  ],
-  templateUrl: './app.html'
+  imports: [RouterOutlet, CommonModule, CreatePost, EditPost, PostDetails, CreateUser, EditProfileModal, AdminEditUser],
+  templateUrl: './app.html',
+  styles: ['.blur { filter: blur(2px); pointer-events: none; transition: all 0.3s; }']
 })
 export class App {
-  protected readonly title = signal('angular-app');
-  constructor(protected modalService: ModalService, private dataService: DataService, private router: Router) {
-    // Handle deep links for posts (unify modal experience)
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
-      const url = event.urlAfterRedirects || event.url;
-      const match = url.match(/\/post\/(\d+)/);
+  constructor(protected modalService: ModalService, private router: Router) {
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: any) => {
+      const match = (event.urlAfterRedirects || event.url).match(/\/post\/(\d+)/);
       if (match) {
-        const postId = match[1];
-        this.modalService.open('post-details', { id: +postId });
-        this.router.navigate(['/home'], { replaceUrl: true }); // Clean up URL
+        this.modalService.open('post-details', { id: +match[1] });
+        this.router.navigate(['/home'], { replaceUrl: true });
       }
     });
   }

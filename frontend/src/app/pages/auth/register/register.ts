@@ -81,8 +81,7 @@ export class Register {
             password: this.password
         }).subscribe({
             next: (response) => {
-                console.log('Registration successful:', response);
-                
+
                 // Show success message
                 this.alert.fire({
                     icon: 'success',

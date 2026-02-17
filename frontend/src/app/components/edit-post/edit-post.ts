@@ -105,7 +105,6 @@ export class EditPost implements OnInit, OnDestroy {
             images: finalUrls.length > 0 ? finalUrls : undefined
         }).subscribe({
             next: (updatedPost) => {
-                console.log('Post updated successfully:', updatedPost);
                 this.isLoading = false;
                 this.cdr.detectChanges();
                 this.modalService.close();

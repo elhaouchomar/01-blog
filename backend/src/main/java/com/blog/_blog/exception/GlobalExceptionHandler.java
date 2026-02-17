@@ -40,13 +40,6 @@ public class GlobalExceptionHandler {
                                 .body(ApiResponse.error(ex.getMessage(), null));
         }
 
-        @ExceptionHandler(UserAlreadyExistsException.class)
-        public ResponseEntity<ApiResponse<Void>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(ApiResponse.error(ex.getMessage(), null));
-        }
-
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationsException(
                         MethodArgumentNotValidException ex) {
@@ -74,41 +67,6 @@ public class GlobalExceptionHandler {
         @ExceptionHandler(MissingServletRequestParameterException.class)
         public ResponseEntity<ApiResponse<Void>> handleParamsException(MissingServletRequestParameterException ex) {
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(ApiResponse.error(ex.getMessage(), null));
-        }
-
-        @ExceptionHandler(SelfFollowException.class)
-        public ResponseEntity<ApiResponse<Void>> handleSelfFollow(SelfFollowException ex) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(ApiResponse.error(ex.getMessage(), null));
-        }
-
-        @ExceptionHandler(UserNotFoundException.class)
-        public ResponseEntity<ApiResponse<Void>> handleUserNotFound(UserNotFoundException ex) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(ApiResponse.error(ex.getMessage(), null));
-        }
-
-        @ExceptionHandler(PostNotFoundException.class)
-        public ResponseEntity<ApiResponse<Void>> handlePostNotFound(PostNotFoundException ex) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(ApiResponse.error(ex.getMessage(), null));
-        }
-
-        @ExceptionHandler(ReportNotFoundException.class)
-        public ResponseEntity<ApiResponse<Void>> handleReportNotFound(ReportNotFoundException ex) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(ApiResponse.error(ex.getMessage(), null));
-        }
-
-        @ExceptionHandler(SelfReportException.class)
-        public ResponseEntity<ApiResponse<Void>> handleSelfReport(SelfReportException ex) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(ApiResponse.error(ex.getMessage(), null));
@@ -142,41 +100,6 @@ public class GlobalExceptionHandler {
 
         @ExceptionHandler(FileValidationException.class)
         public ResponseEntity<ApiResponse<Void>> handleFileValidation(FileValidationException ex) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(ApiResponse.error(ex.getMessage(), null));
-        }
-
-        @ExceptionHandler(UnauthorizedActionException.class)
-        public ResponseEntity<ApiResponse<Void>> handleUnauthorizedAction(UnauthorizedActionException ex) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(ApiResponse.error(ex.getMessage(), null));
-        }
-
-        @ExceptionHandler(AlreadyFollowingException.class)
-        public ResponseEntity<ApiResponse<Void>> handleAlreadyFollowing(AlreadyFollowingException ex) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(ApiResponse.error(ex.getMessage(), null));
-        }
-
-        @ExceptionHandler(NotFollowingException.class)
-        public ResponseEntity<ApiResponse<Void>> handleNotFollowing(NotFollowingException ex) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(ApiResponse.error(ex.getMessage(), null));
-        }
-
-        @ExceptionHandler(InvalidPostTitleException.class)
-        public ResponseEntity<ApiResponse<String>> handleInvalidPostTitle(InvalidPostTitleException ex) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(ApiResponse.error(ex.getMessage(), null));
-        }
-
-        @ExceptionHandler(InvalidPostContentException.class)
-        public ResponseEntity<ApiResponse<String>> handleInvalidPostContent(InvalidPostContentException ex) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(ApiResponse.error(ex.getMessage(), null));

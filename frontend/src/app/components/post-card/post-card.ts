@@ -38,16 +38,6 @@ export class PostCardComponent implements OnDestroy {
     ) {
         effect(() => {
             this.currentUser = this.dataService.currentUser();
-            // Debugging log for post visibility conditions
-            if (this.post) {
-                console.log(`Post ID: ${this.post.id}`);
-                console.log(`  post.hidden: ${this.post.hidden}`);
-                console.log(`  currentUser?.isAdmin: ${this.currentUser?.isAdmin}`);
-                console.log(`  currentUser?.id: ${this.currentUser?.id}`);
-                console.log(`  post.user.id: ${this.post.user.id}`);
-                console.log(`  Is current user owner?: ${this.currentUser?.id === this.post.user.id}`);
-                console.log(`  Show hidden UI condition: ${this.post.hidden && (this.currentUser?.isAdmin || this.currentUser?.id === this.post.user.id)}`);
-            }
         });
     }
 

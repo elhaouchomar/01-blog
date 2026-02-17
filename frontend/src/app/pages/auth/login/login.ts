@@ -40,8 +40,6 @@ export class Login {
         this.dataService.login({ email: this.email, password: this.password })
             .subscribe({
                 next: (response) => {
-                    console.log('Login successful:', response);
-
                     // Show success message
                     this.alert.fire({
                         icon: 'success',

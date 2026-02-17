@@ -108,7 +108,6 @@ export class Profile implements OnInit {
   toggleMenu(event?: Event) {
     if (event) event.stopPropagation();
     this.isMenuOpen = !this.isMenuOpen;
-    console.log('Profile Menu Toggled:', this.isMenuOpen);
   }
 
   get isOwnProfile(): boolean {
