@@ -1,6 +1,7 @@
 package com.blog._blog.config;
 
 import com.blog._blog.security.JwtService;
+import io.jsonwebtoken.JwtException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -11,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -57,10 +59,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-        } catch (Exception e) {
+        } catch (JwtException | IllegalArgumentException | UsernameNotFoundException e) {
             // Token is invalid or expired, continue chain without setting authentication
             // This allows public endpoints (like /authenticate) to accessible even with bad
             // token
+            SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);
     }

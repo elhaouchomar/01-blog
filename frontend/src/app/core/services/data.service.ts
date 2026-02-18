@@ -507,17 +507,6 @@ export class DataService {
         );
     }
 
-    adminUpdateUser(userId: number, user: Partial<User>): Observable<User> {
-        const sanitizedUser = this.sanitizeUserUpdate(user);
-        return this.http.put<UserDTO>(`${this.API_URL}/users/${userId}`, sanitizedUser).pipe(
-            map(userDTO => this.mapDTOToUser(userDTO)),
-            tap(() => {
-                this.loadUsers();
-                this.loadDashboardStats();
-            })
-        );
-    }
-
     updateReportStatus(reportId: number, status: ReportStatus): Observable<ModerationReport> {
         return this.http.put<ModerationReport>(`${this.API_URL}/reports/${reportId}/status`, {}, { params: { status } }).pipe(
             tap(() => {

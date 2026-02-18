@@ -16,10 +16,11 @@ import { Settings } from './pages/settings/settings';
 
 import { adminGuard } from './core/guards/admin.guard';
 import { authGuard } from './core/guards/auth.guard';
+import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
-    { path: 'login', component: Login },
-    { path: 'register', component: Register },
+    { path: 'login', component: Login, canActivate: [guestGuard] },
+    { path: 'register', component: Register, canActivate: [guestGuard] },
     { path: 'home', component: Home, canActivate: [authGuard] },
     { path: 'profile', component: Profile, canActivate: [authGuard] },
     { path: 'profile/:id', component: Profile, canActivate: [authGuard] },

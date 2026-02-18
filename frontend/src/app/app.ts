@@ -8,11 +8,10 @@ import { EditPost } from './components/edit-post/edit-post';
 import { PostDetails } from './components/post-details/post-details';
 import { CreateUser } from './components/create-user/create-user';
 import { EditProfileModal } from './components/edit-profile/edit-profile';
-import { AdminEditUser } from './components/admin-edit-user/admin-edit-user';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule, CreatePost, EditPost, PostDetails, CreateUser, EditProfileModal, AdminEditUser],
+  imports: [RouterOutlet, CommonModule, CreatePost, EditPost, PostDetails, CreateUser, EditProfileModal],
   templateUrl: './app.html',
   styles: ['.blur { filter: blur(2px); pointer-events: none; transition: all 0.3s; }']
 })

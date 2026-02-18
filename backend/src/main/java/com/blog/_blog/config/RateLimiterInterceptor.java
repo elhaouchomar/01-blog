@@ -32,7 +32,6 @@ public class RateLimiterInterceptor implements HandlerInterceptor {
         UserRequestInfo info = requestCounts.computeIfAbsent(clientIp, k -> new UserRequestInfo(currentTime));
 
         if (info.count.incrementAndGet() > MAX_REQUESTS_PER_MINUTE) {
-            System.out.println("❌ Rate limit exceeded for IP: " + clientIp);
             response.setStatus(429); // Too Many Requests
             response.getWriter().write("Too many requests. Please try again in a minute.");
             return false;
