@@ -33,8 +33,8 @@
   </mat-dialog-content>
 
   <mat-dialog-actions align="end" class="reason-actions">
-    <button mat-button (click)="close(null)">Cancel</button>
-    <button mat-flat-button color="warn" (click)="submit()">
+    <button mat-button class="reason-cancel-btn" (click)="close(null)">Cancel</button>
+    <button mat-flat-button color="warn" class="reason-submit-btn" (click)="submit()">
       {{ data.confirmButtonText || 'Submit Report' }}
     </button>
   </mat-dialog-actions>

@@ -45,14 +45,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     ) {
         this.updateRouteFlags(this.router.url);
 
-        // Track current route to highlight notification icon correctly
-        this.router.events.pipe(
-            filter(event => event instanceof NavigationEnd)
-        ).subscribe((event: any) => {
-            this.updateRouteFlags(event.urlAfterRedirects);
-            this.cdr.detectChanges();
-        });
-
         // Reactive effect for current user changes
         effect(() => {
             const user = this.dataService.currentUser();
@@ -65,6 +57,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.updateRouteFlags(this.router.url);
+
+        // Track current route to highlight notification icon correctly.
+        this.router.events.pipe(
+            filter(event => event instanceof NavigationEnd),
+            takeUntil(this.destroy$)
+        ).subscribe((event: any) => {
+            this.updateRouteFlags(event.urlAfterRedirects || event.url);
+            this.cdr.detectChanges();
+        });
 
         // Setup search debouncing
         this.searchSubject.pipe(
@@ -89,8 +90,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     private updateRouteFlags(url: string) {
-        this.isNotificationRoute = url === '/notifications';
-        this.isDashboardRoute = url.startsWith('/dashboard');
+        const normalized = (url || '').split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
+        this.isNotificationRoute = normalized === '/notifications';
+        this.isDashboardRoute = normalized.startsWith('/dashboard');
     }
 
     @HostListener('document:click', ['$event'])

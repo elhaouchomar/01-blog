@@ -47,7 +47,7 @@
         <div class="modal-footer premium-footer">
             <button type="button" class="btn-cancel-premium" (click)="close()">Cancel</button>
             <button type="submit" class="btn-publish-premium" (click)="createUser()"
-                [disabled]="!form.email || !form.password">
+                [disabled]="!form.firstname || !form.lastname || !form.email || !form.password">
                 <span>Create Account</span>
                 <span class="material-symbols-outlined">person_add</span>
             </button>

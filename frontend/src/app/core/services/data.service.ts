@@ -1,16 +1,23 @@
-import { Injectable, signal, computed, effect, Injector, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, signal, computed, isDevMode } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, tap, map, switchMap, retry, timer, throwError } from 'rxjs';
 import { User, Post, Notification, Comment, AuthenticationRequest, AuthenticationResponse, RegisterRequest, CreatePostRequest } from '../../shared/models/data.models';
 import { MaterialAlertService } from './material-alert.service';
+import { DashboardStats, ModerationReport, ReportStatus } from '../../shared/models/moderation.models';
+import { APP_CONSTANTS } from '../../shared/constants/app.constants';
+
+type UserDTO = Partial<User> & {
+    id: number;
+    username?: string;
+    postCount?: number;
+};
 
 @Injectable({
     providedIn: 'root'
 })
 export class DataService {
-    public injector = inject(Injector);
-    private BASE_URL = 'http://localhost:8080';
-    private API_URL = `${this.BASE_URL}/api`;
+    private readonly BASE_URL = APP_CONSTANTS.API.BASE_URL.replace(/\/+$/, '');
+    private readonly API_URL = `${this.BASE_URL}/api`;
 
     // Signals state
     private _currentUser = signal<User | null>(null);
@@ -18,8 +25,8 @@ export class DataService {
     private _managementPosts = signal<Post[]>([]); // Dedicated signal for dashboard/admin
     private _users = signal<User[]>([]);
     private _notifications = signal<Notification[]>([]);
-    private _dashboardStats = signal<any>(null);
-    private _reports = signal<any[]>([]);
+    private _dashboardStats = signal<DashboardStats | null>(null);
+    private _reports = signal<ModerationReport[]>([]);
     private _authChecked = signal<boolean>(false);
 
     // Public Signals
@@ -31,14 +38,6 @@ export class DataService {
     readonly notifications = this._notifications.asReadonly();
     readonly dashboardStats = this._dashboardStats.asReadonly();
     readonly reports = this._reports.asReadonly();
-
-    // Compatibility observables
-    readonly currentUser$ = new Observable<User | null>(observer => {
-        const sub = effect(() => {
-            observer.next(this._currentUser());
-        }, { injector: this.injector });
-        return () => { };
-    });
 
     // Computed Signals
     readonly isAdmin = computed(() => this._currentUser()?.role === 'ADMIN');
@@ -55,11 +54,11 @@ export class DataService {
         this.initializeAuth();
     }
 
-    private pollingInterval: any;
-    private recoveryTimer: any;
+    private pollingInterval: ReturnType<typeof setInterval> | null = null;
+    private recoveryTimer: ReturnType<typeof setTimeout> | null = null;
     private lastRefreshAt = 0;
 
-    private shouldRetryRequest(err: any): boolean {
+    private shouldRetryRequest(err: HttpErrorResponse): boolean {
         const status = err?.status;
         // Do not retry auth/client/rate-limit failures.
         return !(status === 400 || status === 401 || status === 403 || status === 404 || status === 429);
@@ -89,7 +88,7 @@ export class DataService {
         this.getProfile().pipe(
             retry({
                 count: 2,
-                delay: (err, retryCount) => {
+                delay: (err: HttpErrorResponse, retryCount) => {
                     if (!this.shouldRetryRequest(err)) {
                         throw err;
                     }
@@ -252,15 +251,11 @@ export class DataService {
     // Admin method to create user without logging in as them
     provisionUser(request: RegisterRequest): Observable<AuthenticationResponse> {
         const sanitizedRequest = this.sanitizeRegisterRequest(request);
-        return this.http.post<AuthenticationResponse>(`${this.API_URL}/auth/register`, sanitizedRequest, {
-            headers: new HttpHeaders({
-                'X-Skip-Auth-Cookie': 'true'
-            })
-        });
+        return this.http.post<AuthenticationResponse>(`${this.API_URL}/users/provision`, sanitizedRequest);
     }
 
     getProfile(): Observable<User> {
-        return this.http.get<any>(`${this.API_URL}/users/me`)
+        return this.http.get<UserDTO>(`${this.API_URL}/users/me`)
             .pipe(
                 map(dto => this.mapDTOToUser(dto)),
                 tap(user => {
@@ -283,15 +278,15 @@ export class DataService {
     }
 
     getUserById(userId: number): Observable<User> {
-        return this.http.get<any>(`${this.API_URL}/users/${userId}`)
+        return this.http.get<UserDTO>(`${this.API_URL}/users/${userId}`)
             .pipe(map(dto => this.mapDTOToUser(dto)));
     }
 
     getUsers(): Observable<User[]> {
-        return this.http.get<User[]>(`${this.API_URL}/users`).pipe(
+        return this.http.get<UserDTO[]>(`${this.API_URL}/users`).pipe(
             retry({
                 count: 2,
-                delay: (err, retryCount) => {
+                delay: (err: HttpErrorResponse, retryCount) => {
                     if (!this.shouldRetryRequest(err)) throw err;
                     return timer(250 * retryCount);
                 }
@@ -317,7 +312,7 @@ export class DataService {
         if (!this.isAdmin()) return;
         this.http.get<Post[]>(`${this.API_URL}/posts`, { params: { page: page.toString(), size: size.toString() } }).subscribe({
             next: (posts) => this._managementPosts.set(posts),
-            error: (err) => console.error('Failed to load management posts:', err)
+            error: (err) => this.logError('Failed to load management posts', err)
         });
     }
 
@@ -326,7 +321,7 @@ export class DataService {
         return this.http.get<Post[]>(`${this.API_URL}/posts`, { params: { page: page.toString(), size: size.toString() } }).pipe(
             retry({
                 count: 2,
-                delay: (err, retryCount) => {
+                delay: (err: HttpErrorResponse, retryCount) => {
                     if (!this.shouldRetryRequest(err)) throw err;
                     return timer(250 * retryCount);
                 }
@@ -342,17 +337,17 @@ export class DataService {
     }
 
     loadUsers() {
-        this.http.get<User[]>(`${this.API_URL}/users`).pipe(
+        this.http.get<UserDTO[]>(`${this.API_URL}/users`).pipe(
             retry({
                 count: 2,
-                delay: (err, retryCount) => {
+                delay: (err: HttpErrorResponse, retryCount) => {
                     if (!this.shouldRetryRequest(err)) throw err;
                     return timer(250 * retryCount);
                 }
             })
         ).subscribe({
             next: (users) => this._users.set(users.map(u => this.mapDTOToUser(u))),
-            error: (err) => console.error('Failed to load users:', err)
+            error: (err) => this.logError('Failed to load users', err)
         });
     }
 
@@ -362,7 +357,7 @@ export class DataService {
         }).pipe(
             retry({
                 count: 2,
-                delay: (err, retryCount) => {
+                delay: (err: HttpErrorResponse, retryCount) => {
                     if (!this.shouldRetryRequest(err)) throw err;
                     return timer(250 * retryCount);
                 }
@@ -379,21 +374,21 @@ export class DataService {
 
     loadNotifications(page: number = 0, size: number = 20, append: boolean = false) {
         this.fetchNotifications(page, size, append).subscribe({
-            error: (err) => console.error('Failed to load notifications:', err)
+            error: (err) => this.logError('Failed to load notifications', err)
         });
     }
 
     loadDashboardStats() {
-        this.http.get<any>(`${this.API_URL}/dashboard/stats`).subscribe({
+        this.http.get<DashboardStats>(`${this.API_URL}/dashboard/stats`).subscribe({
             next: (stats) => this._dashboardStats.set(stats),
-            error: (err) => console.error('Failed to load dashboard stats:', err)
+            error: (err) => this.logError('Failed to load dashboard stats', err)
         });
     }
 
     loadReports() {
-        this.http.get<any[]>(`${this.API_URL}/reports`).subscribe({
+        this.http.get<ModerationReport[]>(`${this.API_URL}/reports`).subscribe({
             next: (reports) => this._reports.set(reports),
-            error: (err) => console.error('Failed to load reports:', err)
+            error: (err) => this.logError('Failed to load reports', err)
         });
     }
 
@@ -502,8 +497,9 @@ export class DataService {
         );
     }
 
-    toggleBan(userId: number): Observable<any> {
-        return this.http.put(`${this.API_URL}/users/${userId}/ban`, {}).pipe(
+    toggleBan(userId: number): Observable<User> {
+        return this.http.put<UserDTO>(`${this.API_URL}/users/${userId}/ban`, {}).pipe(
+            map(userDTO => this.mapDTOToUser(userDTO)),
             tap(() => {
                 this.loadUsers();
                 this.loadDashboardStats();
@@ -513,16 +509,17 @@ export class DataService {
 
     adminUpdateUser(userId: number, user: Partial<User>): Observable<User> {
         const sanitizedUser = this.sanitizeUserUpdate(user);
-        return this.http.put<any>(`${this.API_URL}/users/${userId}`, sanitizedUser).pipe(
-            tap((userDTO: any) => {
+        return this.http.put<UserDTO>(`${this.API_URL}/users/${userId}`, sanitizedUser).pipe(
+            map(userDTO => this.mapDTOToUser(userDTO)),
+            tap(() => {
                 this.loadUsers();
                 this.loadDashboardStats();
             })
         );
     }
 
-    updateReportStatus(reportId: number, status: string): Observable<any> {
-        return this.http.put<any>(`${this.API_URL}/reports/${reportId}/status`, {}, { params: { status } }).pipe(
+    updateReportStatus(reportId: number, status: ReportStatus): Observable<ModerationReport> {
+        return this.http.put<ModerationReport>(`${this.API_URL}/reports/${reportId}/status`, {}, { params: { status } }).pipe(
             tap(() => {
                 this.loadReports();
                 this.loadDashboardStats();
@@ -530,12 +527,12 @@ export class DataService {
         );
     }
 
-    reportContent(reason: string, reportedUserId?: number, reportedPostId?: number): Observable<any> {
+    reportContent(reason: string, reportedUserId?: number, reportedPostId?: number): Observable<ModerationReport> {
         const sanitizedReason = this.sanitizePlainText(reason);
         if (sanitizedReason.length < 10 || sanitizedReason.length > 500) {
             return throwError(() => new Error('Reason must be between 10 and 500 characters.'));
         }
-        return this.http.post<any>(`${this.API_URL}/reports`, {
+        return this.http.post<ModerationReport>(`${this.API_URL}/reports`, {
             reason: sanitizedReason,
             reportedUserId,
             reportedPostId
@@ -574,9 +571,9 @@ export class DataService {
     updateProfile(user: Partial<User>): Observable<User> {
         if (this.checkBanned()) return new Observable(o => o.error('Banned'));
         const sanitizedUser = this.sanitizeUserUpdate(user);
-        return this.http.put<any>(`${this.API_URL}/users/me`, sanitizedUser).pipe(
-            tap((userDTO: any) => {
-                const refreshed = this.mapDTOToUser(userDTO);
+        return this.http.put<UserDTO>(`${this.API_URL}/users/me`, sanitizedUser).pipe(
+            map(userDTO => this.mapDTOToUser(userDTO)),
+            tap((refreshed) => {
                 this._currentUser.set(refreshed);
                 this.loadPosts(); // Refresh posts in case name/avatar changed
             })
@@ -585,9 +582,9 @@ export class DataService {
 
     toggleSubscribe(): Observable<User> {
         if (this.checkBanned()) return new Observable(o => o.error('Banned'));
-        return this.http.put<any>(`${this.API_URL}/users/me/subscribe`, {}).pipe(
-            tap((userDTO: any) => {
-                const refreshed = this.mapDTOToUser(userDTO);
+        return this.http.put<UserDTO>(`${this.API_URL}/users/me/subscribe`, {}).pipe(
+            map(userDTO => this.mapDTOToUser(userDTO)),
+            tap((refreshed) => {
                 this._currentUser.set(refreshed);
             })
         );
@@ -673,7 +670,13 @@ export class DataService {
         return (div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim();
     }
 
-    private mapDTOToUser(dto: any): User {
+    private logError(context: string, err: unknown): void {
+        if (isDevMode()) {
+            console.error(`${context}:`, err);
+        }
+    }
+
+    private mapDTOToUser(dto: UserDTO): User {
         return {
             id: dto.id,
             name: dto.name || `${dto.firstname} ${dto.lastname}`,

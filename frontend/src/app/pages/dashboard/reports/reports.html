@@ -32,7 +32,7 @@
         </div>
     </div>
 
-    <!-- Data Table -->
+    <!-- Desktop Table -->
     <div class="db-card table-card" *ngIf="filteredReports().length > 0 && !isLoading()">
         <div class="table-wrapper">
             <table class="data-table">
@@ -61,7 +61,8 @@
                                 </div>
                                 <div class="target-info">
                                     <h6 class="target-title" (click)="handleView(report)">
-                                        {{ getTargetLabel(report) }}
+                                        {{ report.reportedPostId ? (report.reportedPostTitle || 'No post') :
+                                        (report.reportedUser?.name || 'No user') }}
                                     </h6>
                                     <p class="target-id">#{{ report.id }}</p>
                                 </div>
@@ -71,11 +72,11 @@
                             <p class="reason-text" [title]="report.reason">{{ report.reason }}</p>
                         </td>
                         <td class="hide-lg">
-                            <span class="reporter-name">{{ getReporterLabel(report) }}</span>
+                            <span class="reporter-name">{{ report.reporter.name }}</span>
                         </td>
                         <td>
                             <span class="status-badge" [class.resolved]="report.status === 'RESOLVED'">
-                                {{ formatStatus(report.status) | titlecase }}
+                                {{ report.status.replace('_', ' ') | titlecase }}
                             </span>
                         </td>
                         <td class="hide-xl">
@@ -96,13 +97,12 @@
                                     (click)="handleReportAction({ report, action: 'deletePost' })" title="Delete Post">
                                     <span class="material-symbols-outlined">delete</span>
                                 </button>
-                                <button *ngIf="report.reportedUser || report.reportedPostAuthor" class="btn-icon"
-                                    [class.unban]="(report.reportedUser || report.reportedPostAuthor).banned"
+                                <button *ngIf="getTargetUser(report) as targetUser" class="btn-icon"
+                                    [class.unban]="targetUser.banned"
                                     (click)="handleReportAction({ report, action: 'banUser' })"
-                                    [title]="(report.reportedUser || report.reportedPostAuthor).banned ? 'Unban User' : 'Ban User'">
+                                    [title]="targetUser.banned ? 'Unban User' : 'Ban User'">
                                     <span class="material-symbols-outlined">{{
-                                        (report.reportedUser || report.reportedPostAuthor).banned ? 'check_circle' :
-                                        'block' }}</span>
+                                        targetUser.banned ? 'check_circle' : 'block' }}</span>
                                 </button>
                                 <button
                                     *ngIf="dataService.currentUser()?.isAdmin && (report.reportedUser || report.reportedPostAuthor)"
@@ -116,6 +116,13 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- Mobile Cards -->
+    <div class="mobile-reports" *ngIf="filteredReports().length > 0 && !isLoading()">
+        <app-report-card *ngFor="let report of paginatedReports()" [report]="report"
+            (onAction)="handleReportAction($event)" (onViewTarget)="handleView($event)">
+        </app-report-card>
     </div>
 
     <!-- Feedbacks -->

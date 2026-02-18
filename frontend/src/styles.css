@@ -68,6 +68,10 @@
     box-sizing: border-box;
 }
 
+html {
+    scrollbar-gutter: stable;
+}
+
 body {
     font-family: var(--font-display);
     background-color: var(--background-light);
@@ -3026,6 +3030,22 @@ body {
 .mat-mdc-snack-bar-container.material-alert-toast--info .mdc-snackbar__surface,
 .mat-mdc-snack-bar-container.material-alert-toast--question .mdc-snackbar__surface {
     background: linear-gradient(135deg, #1d4ed8, #3b82f6) !important;
+}
+
+/* Material dialog panel compatibility */
+.material-alert-dialog-panel .mat-mdc-dialog-surface,
+.report-reason-dialog-panel .mat-mdc-dialog-surface,
+.mat-mdc-dialog-panel.material-alert-dialog-panel .mat-mdc-dialog-surface,
+.mat-mdc-dialog-panel.report-reason-dialog-panel .mat-mdc-dialog-surface {
+    padding: 0 !important;
+    border-radius: 14px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+}
+
+.cdk-overlay-backdrop.cdk-overlay-dark-backdrop {
+    backdrop-filter: blur(2px);
 }
 
 /* Reusable single-line overflow handling */

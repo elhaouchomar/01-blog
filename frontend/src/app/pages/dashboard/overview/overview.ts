@@ -4,6 +4,7 @@ import { DataService } from '../../../core/services/data.service';
 import { RouterLink } from '@angular/router';
 import { DbPageHeaderComponent } from '../../../components/dashboard/db-page-header';
 import { DbFeedbackComponent } from '../../../components/dashboard/db-feedback';
+import { DashboardStats } from '../../../shared/models/moderation.models';
 
 @Component({
     selector: 'app-dashboard-overview',
@@ -24,7 +25,7 @@ export class DashboardOverview implements OnInit {
         }
     }
 
-    get stats() {
+    get stats(): DashboardStats {
         return this.dataService.dashboardStats() || {
             totalUsers: 0,
             totalPosts: 0,
@@ -39,7 +40,7 @@ export class DashboardOverview implements OnInit {
     getActivityPercentage(count: number): number {
         const activity = this.stats.activity;
         if (!activity || activity.length === 0) return 0;
-        const max = Math.max(...activity.map((a: any) => a.count));
+        const max = Math.max(...activity.map(a => a.count));
         return max > 0 ? (count / max) * 100 : 0;
     }
 }

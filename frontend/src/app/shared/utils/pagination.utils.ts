@@ -1,19 +1,22 @@
-import { signal, computed, WritableSignal } from '@angular/core';
+import { Signal, signal, computed, WritableSignal } from '@angular/core';
 import { APP_CONSTANTS } from '../constants/app.constants';
 
 export interface PaginationState<T> {
     currentPage: WritableSignal<number>;
     pageSize: number;
-    paginatedData: any; // Computed
-    totalPages: any; // Computed
+    paginatedData: Signal<T[]>;
+    totalPages: Signal<number>;
     nextPage: () => void;
     previousPage: () => void;
-    getPageStart: () => number;
-    getPageEnd: () => number;
+    getPageStart: Signal<number>;
+    getPageEnd: Signal<number>;
     goToPage: (page: number) => void;
 }
 
-export function usePagination<T>(dataSource: () => T[], pageSize: number = APP_CONSTANTS.PAGINATION.PAGE_SIZE) {
+export function usePagination<T>(
+    dataSource: () => T[],
+    pageSize: number = APP_CONSTANTS.PAGINATION.PAGE_SIZE
+): PaginationState<T> {
     const currentPage = signal(1);
 
     const totalPages = computed(() => {

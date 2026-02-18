@@ -3,6 +3,10 @@
  */
 
 export const APP_CONSTANTS = {
+    API: {
+        BASE_URL: 'http://localhost:8080'
+    },
+
     ROUTES: {
         HOME: '/home',
         PROFILE: '/profile',

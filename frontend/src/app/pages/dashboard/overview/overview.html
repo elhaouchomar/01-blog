@@ -15,12 +15,6 @@
                     <span class="material-symbols-outlined">group</span>
                 </div>
             </div>
-            <div class="stat-footer">
-                <span class="stat-trend positive">
-                    <span class="material-symbols-outlined">trending_up</span>
-                    <span>12% this month</span>
-                </span>
-            </div>
         </div>
 
         <div class="stat-card posts">
@@ -32,12 +26,6 @@
                 <div class="stat-icon-wrapper">
                     <span class="material-symbols-outlined">article</span>
                 </div>
-            </div>
-            <div class="stat-footer">
-                <span class="stat-trend positive">
-                    <span class="material-symbols-outlined">trending_up</span>
-                    <span>5% this week</span>
-                </span>
             </div>
         </div>
 
@@ -51,13 +39,6 @@
                     <span class="material-symbols-outlined">flag</span>
                 </div>
             </div>
-            <div class="stat-footer">
-                <span class="stat-trend" [class.negative]="stats.pendingReports > 0">
-                    <span class="material-symbols-outlined">{{ stats.pendingReports > 0 ? 'priority_high' :
-                        'check_circle' }}</span>
-                    <span>{{ stats.pendingReports > 0 ? 'Requires attention' : 'All resolved' }}</span>
-                </span>
-            </div>
         </div>
 
         <div class="stat-card banned danger">
@@ -69,12 +50,6 @@
                 <div class="stat-icon-wrapper">
                     <span class="material-symbols-outlined">block</span>
                 </div>
-            </div>
-            <div class="stat-footer">
-                <span class="stat-trend">
-                    <span class="material-symbols-outlined">history</span>
-                    <span>Last 30 days</span>
-                </span>
             </div>
         </div>
     </div>
@@ -93,47 +68,6 @@
     </div>
 
     <div class="dashboard-grid">
-        <!-- Activity Chart Placeholder -->
-        <div class="grid-card main-content">
-            <div class="card-header">
-                <div>
-                    <h3 class="card-title">Platform Activity</h3>
-                    <p class="card-subtitle">User engagement over the last 7 days</p>
-                </div>
-                <div class="card-actions">
-                    <span class="badge-dot">Live</span>
-                </div>
-            </div>
-            <div class="activity-chart">
-                <div class="chart-bars">
-                    <div class="chart-bar-wrapper">
-                        <div class="chart-bar" style="height: 65%"></div>
-                    </div>
-                    <div class="chart-bar-wrapper">
-                        <div class="chart-bar" style="height: 45%"></div>
-                    </div>
-                    <div class="chart-bar-wrapper">
-                        <div class="chart-bar" style="height: 80%"></div>
-                    </div>
-                    <div class="chart-bar-wrapper">
-                        <div class="chart-bar" style="height: 35%"></div>
-                    </div>
-                    <div class="chart-bar-wrapper">
-                        <div class="chart-bar" style="height: 55%"></div>
-                    </div>
-                    <div class="chart-bar-wrapper">
-                        <div class="chart-bar" style="height: 90%"></div>
-                    </div>
-                    <div class="chart-bar-wrapper">
-                        <div class="chart-bar" style="height: 75%"></div>
-                    </div>
-                </div>
-                <div class="chart-labels">
-                    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-                </div>
-            </div>
-        </div>
-
         <!-- Reported Users Section -->
         <div class="grid-card secondary-content" *ngIf="dataService.dashboardStats() as stats">
             <div class="card-header">

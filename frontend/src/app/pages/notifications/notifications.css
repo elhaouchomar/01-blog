@@ -4,6 +4,7 @@
     width: 100%;
     margin: 0 auto;
     padding: 0 1rem;
+    min-height: 100vh;
     --notif-accent: #0ea5e9;
     --notif-accent-2: #f97316;
     background:
@@ -28,9 +29,32 @@
     }
 }
 
+/* Sidebar Columns */
+.sidebar {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .sidebar {
+        display: block;
+        position: sticky;
+        top: 5.5rem;
+        height: calc(100vh - 7rem);
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+
 .main-feed {
     min-width: 0;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
 .notifications-header {

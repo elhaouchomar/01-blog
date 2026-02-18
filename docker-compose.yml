@@ -30,6 +30,11 @@ services:
       SPRING_DATASOURCE_PASSWORD: blogpass
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_SQL_INIT_MODE: always
+      SPRING_JPA_SHOW_SQL: "true"
+      APP_AUTH_COOKIE_SECURE: "false"
+      JWT_SECRET: ${JWT_SECRET:-QmxvZ0RldkNvbXBvc2VTZWNyZXRLZXlGb3JMb2NhbE9ubHkhIQ==}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
       FILE_UPLOAD_DIR: /app/uploads
     volumes:
       - blog_uploads:/app/uploads

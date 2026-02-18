@@ -23,7 +23,6 @@
                         <a [routerLink]="['/profile', post.user.id]" class="post-author-name"
                             style="cursor: pointer;">{{
                             post.user.name }}</a>
-                        <span class="post-author-handle">{{ post.user.handle }}</span>
                     </div>
                     <p class="post-meta">{{ (post.createdAt || post.time) |
                         date:'short'

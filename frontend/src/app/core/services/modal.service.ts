@@ -10,7 +10,7 @@ export class ModalService {
     readonly modalData = signal<any>(null);
 
     open(type: ModalType, data: any = null) {
-        this.modalData.set({ type, data });
+        this.modalData.set(data);
         this.activeModal.set(type);
         document.body.style.overflow = 'hidden'; // Prevent background scrolling
     }

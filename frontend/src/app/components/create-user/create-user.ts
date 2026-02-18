@@ -28,14 +28,27 @@ export class CreateUser {
     ) { }
 
     createUser() {
-        if (!this.form.email || !this.form.password) return;
+        const firstname = (this.form.firstname || '').trim();
+        const lastname = (this.form.lastname || '').trim();
+        const email = (this.form.email || '').trim();
+        const password = this.form.password || '';
+        const role = (this.form.role || 'USER').trim().toUpperCase();
+
+        if (!firstname || !lastname || !email || !password) {
+            this.alert.fire({
+                icon: 'warning',
+                title: 'Missing required fields',
+                text: 'First name, last name, email and password are required.'
+            });
+            return;
+        }
 
         this.dataService.provisionUser({
-            firstname: this.form.firstname,
-            lastname: this.form.lastname,
-            email: this.form.email,
-            password: this.form.password,
-            role: this.form.role
+            firstname,
+            lastname,
+            email,
+            password,
+            role
         }).subscribe({
             next: (res) => {
                 this.dataService.loadUsers();
@@ -53,7 +66,7 @@ export class CreateUser {
                 this.alert.fire({
                     icon: 'error',
                     title: 'Failed to create user',
-                    text: 'Please check the details and try again.',
+                    text: err?.error?.message || 'Please check the details and try again.',
                     toast: true,
                     timer: 4000,
                     position: 'top-end'

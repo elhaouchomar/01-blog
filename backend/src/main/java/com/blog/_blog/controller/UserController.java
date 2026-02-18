@@ -1,6 +1,9 @@
 package com.blog._blog.controller;
 
+import com.blog._blog.dto.AuthenticationResponse;
+import com.blog._blog.dto.RegisterRequest;
 import com.blog._blog.dto.UserDTO;
+import com.blog._blog.service.AuthenticationService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final com.blog._blog.service.UserService userService;
+    private final AuthenticationService authenticationService;
 
     @GetMapping
     public ResponseEntity<java.util.List<UserDTO>> getAllUsers(Authentication authentication) {
@@ -77,5 +81,12 @@ public class UserController {
             Authentication authentication) {
         String email = authentication.getName();
         return ResponseEntity.ok(userService.adminUpdateUser(id, userDTO, email));
+    }
+
+    @PostMapping("/provision")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<AuthenticationResponse> provisionUser(@Valid @RequestBody RegisterRequest request) {
+        authenticationService.provisionUserByAdmin(request);
+        return ResponseEntity.ok(AuthenticationResponse.builder().build());
     }
 }

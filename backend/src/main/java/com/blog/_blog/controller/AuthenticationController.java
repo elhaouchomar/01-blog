@@ -25,7 +25,7 @@ public class AuthenticationController {
     private final AuthenticationService service;
     private final JwtService jwtService;
 
-    @Value("${app.auth.cookie-secure:false}")
+    @Value("${app.auth.cookie-secure:true}")
     private boolean authCookieSecure;
 
     @PostMapping("/register")

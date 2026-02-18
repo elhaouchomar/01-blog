@@ -1,23 +1,35 @@
 import { Component, OnInit, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { DataService } from '../../../core/services/data.service';
 import { ModalService } from '../../../core/services/modal.service';
 import { DbPageHeaderComponent } from '../../../components/dashboard/db-page-header';
 import { DbFeedbackComponent } from '../../../components/dashboard/db-feedback';
 import { DbPaginationComponent } from '../../../components/dashboard/db-pagination';
+import { ReportCardComponent } from '../../../components/report-card/report-card';
 import { usePagination } from '../../../shared/utils/pagination.utils';
 import { MaterialAlertService } from '../../../core/services/material-alert.service';
+import { ModerationReport, ReportStatus, ReportStatusFilter } from '../../../shared/models/moderation.models';
+import { UserSummaryDTO } from '../../../shared/models/data.models';
+import { Observable } from 'rxjs';
+
+type ReportAction = 'resolve' | 'deletePost' | 'deleteUser' | 'banUser' | 'toggleVisibility';
+type ReportActionConfig = {
+    title: string;
+    text: string;
+    confirmButtonText: string;
+    confirmButtonColor: string;
+    exec: () => Observable<unknown>;
+};
 
 @Component({
     selector: 'app-dashboard-reports',
     standalone: true,
-    imports: [CommonModule, RouterModule, DbPageHeaderComponent, DbFeedbackComponent, DbPaginationComponent],
+    imports: [CommonModule, DbPageHeaderComponent, DbFeedbackComponent, DbPaginationComponent, ReportCardComponent],
     templateUrl: './reports.html',
     styleUrl: './reports.css',
 })
 export class Reports implements OnInit {
-    statusFilter = signal('PENDING');
+    statusFilter = signal<ReportStatusFilter>('PENDING');
 
     filteredReports = computed(() => {
         const reports = this.dataService.reports();
@@ -53,7 +65,7 @@ export class Reports implements OnInit {
         });
     }
 
-    setStatusFilter(status: string) {
+    setStatusFilter(status: ReportStatusFilter) {
         this.statusFilter.set(status);
         this.pagination.goToPage(1);
     }
@@ -67,27 +79,20 @@ export class Reports implements OnInit {
         }
     }
 
-    getTargetLabel(report: any): string {
-        if (report.reportedPostId) {
-            return report.reportedPostTitle || 'No post';
-        }
-        return report.reportedUser?.name || 'No user';
+    getTargetUser(report: ModerationReport): UserSummaryDTO | null {
+        return report.reportedUser ?? report.reportedPostAuthor ?? null;
     }
 
-    getReporterLabel(report: any): string {
-        return report.reporter?.name || 'No user';
-    }
-
-    updateStatus(report: any, status: string) {
+    updateStatus(report: ModerationReport, status: ReportStatus) {
         if (status === 'RESOLVED' || status === 'DISMISSED') {
             this.alert.fire({
                 title: `${status === 'RESOLVED' ? 'Resolve' : 'Dismiss'} Report?`,
                 text: `Are you sure you want to mark this report as ${status.toLowerCase()}?`,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'Yes, proceed',
-                cancelButtonColor: '#aaa',
-                confirmButtonColor: '#3085d6'
+                confirmButtonText: 'Confirm',
+                cancelButtonColor: '#6b7280',
+                confirmButtonColor: '#0ea5e9'
             }).then((result) => {
                 if (result.isConfirmed) {
                     this.performUpdate(report.id, status);
@@ -98,34 +103,49 @@ export class Reports implements OnInit {
         }
     }
 
-    handleReportAction(event: { report: any, action: string }) {
+    handleReportAction(event: { report: ModerationReport, action: ReportAction }) {
         const { report, action } = event;
+        const targetUser = report.reportedUser ?? report.reportedPostAuthor ?? null;
+        const hasPostTarget = report.reportedPostId !== null && report.reportedPostId !== undefined;
 
         if (action === 'resolve') {
             this.updateStatus(report, 'RESOLVED');
             return;
         }
 
-        const actionConfigs: any = {
+        if ((action === 'deletePost' || action === 'toggleVisibility') && !hasPostTarget) return;
+        if ((action === 'deleteUser' || action === 'banUser') && !targetUser) return;
+
+        const actionConfigs: Record<Exclude<ReportAction, 'resolve'>, ReportActionConfig> = {
             deletePost: {
                 title: 'Remove Post?',
                 text: 'This will permanently delete the post and resolve the report.',
-                exec: () => this.dataService.deletePost(report.reportedPostId)
+                confirmButtonText: 'Delete post',
+                confirmButtonColor: '#e11d48',
+                exec: () => this.dataService.deletePost(report.reportedPostId!)
             },
             deleteUser: {
                 title: 'Remove User?',
                 text: `This will permanently delete the user account and all their data.`,
-                exec: () => this.dataService.deleteUserAction((report.reportedUser || report.reportedPostAuthor).id)
+                confirmButtonText: 'Delete user',
+                confirmButtonColor: '#e11d48',
+                exec: () => this.dataService.deleteUserAction(targetUser!.id)
             },
             banUser: {
-                title: 'Ban User?',
-                text: `Are you sure you want to ban ${(report.reportedUser || report.reportedPostAuthor).name}?`,
-                exec: () => this.dataService.toggleBan((report.reportedUser || report.reportedPostAuthor).id)
+                title: targetUser!.banned ? 'Unban User?' : 'Ban User?',
+                text: targetUser!.banned
+                    ? `Allow ${targetUser!.name} to use the platform again?`
+                    : `Are you sure you want to ban ${targetUser!.name}?`,
+                confirmButtonText: targetUser!.banned ? 'Unban user' : 'Ban user',
+                confirmButtonColor: targetUser!.banned ? '#0ea5e9' : '#e11d48',
+                exec: () => this.dataService.toggleBan(targetUser!.id)
             },
             toggleVisibility: {
                 title: 'Toggle Visibility?',
                 text: 'Change whether this post is visible to other users.',
-                exec: () => this.dataService.togglePostVisibility(report.reportedPostId)
+                confirmButtonText: 'Update visibility',
+                confirmButtonColor: '#0ea5e9',
+                exec: () => this.dataService.togglePostVisibility(report.reportedPostId!)
             }
         };
 
@@ -137,8 +157,9 @@ export class Reports implements OnInit {
             text: config.text,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Yes, execute'
+            confirmButtonColor: config.confirmButtonColor,
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: config.confirmButtonText
         }).then((result) => {
             if (result.isConfirmed) {
                 config.exec().subscribe({
@@ -146,13 +167,14 @@ export class Reports implements OnInit {
                         this.performUpdate(report.id, 'RESOLVED');
                         this.alert.fire('Action Complete', 'The entity was managed and the report resolved.', 'success');
                     },
-                    error: (err: any) => this.alert.fire('Error', 'Failed to complete action: ' + (err.error?.message || 'Server error'), 'error')
+                    error: (err: { error?: { message?: string } }) =>
+                        this.alert.fire('Error', 'Failed to complete action: ' + (err.error?.message || 'Server error'), 'error')
                 });
             }
         });
     }
 
-    private performUpdate(id: number, status: string) {
+    private performUpdate(id: number, status: ReportStatus) {
         this.dataService.updateReportStatus(id, status).subscribe({
             next: () => {
                 this.alert.fire({
@@ -167,7 +189,7 @@ export class Reports implements OnInit {
         });
     }
 
-    handleView(report: any) {
+    handleView(report: ModerationReport) {
         if (report.reportedPostId) {
             this.viewPost(report.reportedPostId);
         } else if (report.reportedUser) {
@@ -180,21 +202,8 @@ export class Reports implements OnInit {
             next: (post) => {
                 this.modalService.open('post-details', post);
             },
-            error: (err) => console.error('Error loading post:', err)
+            error: () => this.alert.fire('Error', 'Unable to load the selected post.', 'error')
         });
     }
 
-    getStatusClass(status: string): string {
-        switch (status) {
-            case 'PENDING': return 'status-pending';
-            case 'UNDER_REVIEW': return 'status-review';
-            case 'RESOLVED': return 'status-resolved';
-            case 'DISMISSED': return 'status-dismissed';
-            default: return '';
-        }
-    }
-
-    formatStatus(status: string): string {
-        return status?.replace(/_/g, ' ') || '';
-    }
 }

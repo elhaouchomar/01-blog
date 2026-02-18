@@ -112,6 +112,10 @@
     overflow-x: auto;
 }
 
+.mobile-reports {
+    display: none;
+}
+
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -338,6 +342,21 @@
 }
 
 @media (max-width: 992px) {
+    .db-page-container {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .table-card {
+        display: none;
+    }
+
+    .mobile-reports {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
+    }
+
     .hide-md {
         display: none !important;
     }

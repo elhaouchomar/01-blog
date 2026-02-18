@@ -20,7 +20,7 @@
                 {{ report.reportedPostTitle || report.reportedUser?.name || 'Reference Content' }}
             </h4>
             <p class="meta-text">
-                Flagged by <span class="reporter-name">{{ report.reporter?.name }}</span> • {{ report.createdAt |
+                Flagged by <span class="reporter-name">{{ report.reporter.name }}</span> • {{ report.createdAt |
                 date:'MMM d' }}
             </p>
         </div>
@@ -61,15 +61,15 @@
         </div>
 
         <!-- User Management Group -->
-        <ng-container *ngIf="report.reportedUser || report.reportedPostAuthor">
+        <ng-container *ngIf="targetUser as target">
             <div class="divider"></div>
             <div class="action-group">
-                <button class="action-btn" [class.success]="(report.reportedUser || report.reportedPostAuthor).banned"
-                    [class.danger]="!(report.reportedUser || report.reportedPostAuthor).banned"
+                <button class="action-btn" [class.success]="target.banned"
+                    [class.danger]="!target.banned"
                     (click)="onAction.emit({report, action: 'banUser'})"
-                    [title]="(report.reportedUser || report.reportedPostAuthor).banned ? 'Unban User' : 'Ban User'">
+                    [title]="target.banned ? 'Unban User' : 'Ban User'">
                     <span class="material-symbols-outlined">
-                        {{ (report.reportedUser || report.reportedPostAuthor).banned ? 'verified_user' : 'block' }}
+                        {{ target.banned ? 'verified_user' : 'block' }}
                     </span>
                 </button>
                 <button class="action-btn danger" *ngIf="currentUser?.isAdmin"

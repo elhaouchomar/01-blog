@@ -1,10 +1,12 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
+import { APP_CONSTANTS } from '../../shared/constants/app.constants';
 import { MaterialAlertService } from '../services/material-alert.service';
 
 let lastTooManyRequestsPopupAt = 0;
 const UNSAFE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+const API_BASE_URL = APP_CONSTANTS.API.BASE_URL.replace(/\/+$/, '');
 
 function readCookie(name: string): string | null {
     if (typeof document === 'undefined') return null;
@@ -14,7 +16,18 @@ function readCookie(name: string): string | null {
 }
 
 function shouldAttachCsrf(url: string): boolean {
-    return url.startsWith('/') || url.startsWith('http://localhost:8080');
+    if (url.startsWith('/')) return true;
+
+    try {
+        const baseOrigin = typeof window !== 'undefined'
+            ? window.location.origin
+            : 'http://localhost';
+        const requestUrl = new URL(url, baseOrigin);
+        const apiUrl = new URL(API_BASE_URL, baseOrigin);
+        return requestUrl.origin === baseOrigin || requestUrl.origin === apiUrl.origin;
+    } catch {
+        return false;
+    }
 }
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {

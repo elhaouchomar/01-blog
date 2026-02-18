@@ -55,6 +55,31 @@ public class AuthenticationService {
                                 .build();
         }
 
+        public AuthenticationResponse provisionUserByAdmin(RegisterRequest request) {
+                String normalizedEmail = sanitizeAndValidateEmail(request.getEmail());
+                String firstName = sanitizeAndValidateName(request.getFirstname(), "First name");
+                String lastName = sanitizeAndValidateName(request.getLastname(), "Last name");
+                String password = validatePassword(request.getPassword());
+                Role role = resolveRequestedRole(request.getRole());
+
+                if (repository.findByEmail(normalizedEmail).isPresent()) {
+                        throw new IllegalArgumentException("Invalid email use a different email");
+                }
+
+                var user = User.builder()
+                                .firstname(firstName)
+                                .lastname(lastName)
+                                .email(normalizedEmail)
+                                .password(passwordEncoder.encode(password))
+                                .role(role)
+                                .build();
+                repository.save(user);
+                var jwtToken = jwtService.generateToken(user);
+                return AuthenticationResponse.builder()
+                                .token(jwtToken)
+                                .build();
+        }
+
         public AuthenticationResponse authenticate(AuthenticationRequest request) {
                 String normalizedEmail = sanitizeAndValidateEmail(request.getEmail());
                 String password = validatePassword(request.getPassword());
@@ -115,5 +140,16 @@ public class AuthenticationService {
                         throw new IllegalArgumentException("Password must be at least 6 characters");
                 }
                 return password;
+        }
+
+        private Role resolveRequestedRole(String roleValue) {
+                if (roleValue == null || roleValue.trim().isEmpty()) {
+                        return Role.USER;
+                }
+                try {
+                        return Role.valueOf(roleValue.trim().toUpperCase());
+                } catch (IllegalArgumentException ex) {
+                        throw new IllegalArgumentException("Invalid role");
+                }
         }
 }

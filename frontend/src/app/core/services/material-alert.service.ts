@@ -77,7 +77,9 @@ export class MaterialAlertService {
             data: options,
             disableClose: options.allowOutsideClick === false,
             autoFocus: false,
-            width: '420px'
+            width: '420px',
+            maxWidth: '92vw',
+            panelClass: 'material-alert-dialog-panel'
         });
 
         return new Promise((resolve) => {
@@ -95,7 +97,9 @@ export class MaterialAlertService {
             data: options || {},
             disableClose: true,
             autoFocus: false,
-            width: '460px'
+            width: '460px',
+            maxWidth: '92vw',
+            panelClass: 'report-reason-dialog-panel'
         });
 
         return new Promise((resolve) => {
