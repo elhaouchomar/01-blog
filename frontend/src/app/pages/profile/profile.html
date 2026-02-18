@@ -18,14 +18,13 @@
                         <div class="insta-avatar-main avatar-initials" *ngIf="!user.avatar">
                             {{ getInitials(user.name) }}
                         </div>
-                        <div class="status-ring hero" *ngIf="user.isOnline"></div>
                     </div>
                 </div>
 
                 <!-- Stats & Actions Right -->
                 <div class="header-info-col">
                     <div class="info-top-row">
-                        <h1 class="insta-username">@{{ user.handle }}</h1>
+                        <h1 class="insta-username">{{ user.handle }}</h1>
                         <div class="header-ctas">
                             <ng-container *ngIf="!isOwnProfile; else ownActions">
                                 <button class="insta-btn-follow" [class.following]="user.isFollowing"

@@ -122,10 +122,9 @@ public class PostService {
 
         Post saved = postRepository.save(post);
 
-        // Notify followers
+        // Notify all followers (subscribers) when a new post is published.
         if (author.getFollowers() != null) {
             author.getFollowers().stream()
-                    .filter(follower -> Boolean.TRUE.equals(follower.getSubscribed()))
                     .forEach(follower -> notificationService.createNotification(
                             follower,
                             author,

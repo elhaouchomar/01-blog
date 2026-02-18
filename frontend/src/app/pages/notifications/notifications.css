@@ -207,6 +207,7 @@
 .notification-avatar-container {
     position: relative;
     flex-shrink: 0;
+    margin-bottom: 15px;
 }
 
 .notification-avatar {
@@ -291,6 +292,17 @@
     justify-content: center;
     width: 100%;
     height: 100%;
+    font-variation-settings: 'FILL' 1;
+}
+
+/* Keep badge icon optically centered across different Material symbols */
+.notification-badge .material-symbols-outlined {
+    display: block;
+    font-size: 0.8rem;
+    line-height: 1;
+    padding-top: 2px;
+    padding-left: 2px;
+    transform: translateY(-0.5px);
     font-variation-settings: 'FILL' 1;
 }
 

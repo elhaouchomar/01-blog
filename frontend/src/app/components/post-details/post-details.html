@@ -19,13 +19,8 @@
             <div class="superior-content-pane no-scrollbar">
                 <!-- Hero Section: Title & Metadata -->
                 <header class="superior-hero-header">
-                    <div class="superior-category-tag" *ngIf="post.category">{{ post.category }}</div>
                     <h1 class="superior-title">{{ post.title }}</h1>
                     <div class="superior-meta-strip">
-                        <span class="meta-icon-group" *ngIf="post.readTime">
-                            <span class="material-symbols-outlined">schedule</span>
-                            {{ post.readTime }}
-                        </span>
                         <span class="meta-divider" *ngIf="post.readTime && post.createdAt"></span>
                         <span class="meta-icon-group" *ngIf="post.createdAt">
                             <span class="material-symbols-outlined">calendar_today</span>
@@ -105,7 +100,7 @@
                         </div>
                         <div class="author-info">
                             <span class="author-name">{{ post.user.name }}</span>
-                            <span class="author-handle">@{{ post.user.handle }}</span>
+                            <span class="author-handle">{{ post.user.handle }}</span>
                         </div>
                     </div>
                 </div>
